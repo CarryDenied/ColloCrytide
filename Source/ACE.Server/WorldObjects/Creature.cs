@@ -264,6 +264,8 @@ namespace ACE.Server.WorldObjects
 
             var trapObject = WorldObjectFactory.CreateNewWorldObject(50143);
             var trapTrigger = WorldObjectFactory.CreateNewWorldObject(2131);
+            if (trapObject == null || trapTrigger == null)
+                return;
 
             trapObject.Location = Location.InFrontOf(8);
             trapObject.Location.PositionZ += 2;
