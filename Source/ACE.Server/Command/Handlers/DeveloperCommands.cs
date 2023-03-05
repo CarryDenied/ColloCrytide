@@ -2384,9 +2384,16 @@ namespace ACE.Server.Command.Handlers
                 session.Network.EnqueueSend(new GameMessageSystemChat($"Failed to generate item.", ChatMessageType.Broadcast));
         }
 
-        [CommandHandler("ciloot", AccessLevel.Developer, CommandHandlerFlag.RequiresWorld, 1, "Generates randomized loot in player's inventory", "<tier> optional: <# items>")]
+        [CommandHandler("ciloot", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, 1, "Generates randomized loot in player's inventory", "<tier> optional: <# items>")]
         public static void HandleCILoot(Session session, params string[] parameters)
         {
+            if (!Common.ConfigManager.Config.Server.TestWorld && session.AccessLevel < AccessLevel.Developer)
+            {
+                ChatPacket.SendServerMessage(session, "You dont have access to this command",
+                    ChatMessageType.Broadcast);
+                return;
+            }
+
             var tier = 1;
             int.TryParse(parameters[0], out tier);
             tier = Math.Clamp(tier, 1, 8);
