@@ -2027,9 +2027,16 @@ namespace ACE.Server.Command.Handlers
         /// <summary>
         /// Toggles the display for player damage info
         /// </summary>
-        [CommandHandler("debugdamage", AccessLevel.Developer, CommandHandlerFlag.RequiresWorld, 0, "Toggles the display for player damage info", "<attack|defense|all|on|off>")]
+        [CommandHandler("debugdamage", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, 0, "Toggles the display for player damage info", "<attack|defense|all|on|off>")]
         public static void HandleDebugDamage(Session session, params string[] parameters)
         {
+            if (!Common.ConfigManager.Config.Server.TestWorld && session.AccessLevel < AccessLevel.Developer)
+            {
+                ChatPacket.SendServerMessage(session, "You dont have access to this command",
+                    ChatMessageType.Broadcast);
+                return;
+            }
+
             // get last appraisal creature target
             var targetCreature = CommandHandlerHelper.GetLastAppraisedObject(session) as Creature;
             if (targetCreature == null) return;
