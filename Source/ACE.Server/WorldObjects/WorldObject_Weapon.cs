@@ -446,26 +446,11 @@ namespace ACE.Server.WorldObjects
             if (weapon != null && weapon.SlayerCreatureType != null && weapon.SlayerDamageBonus != null &&
                 target != null && weapon.SlayerCreatureType == target.CreatureType)
             {
-                if (Common.ConfigManager.Config.Server.WorldRuleset != Common.Ruleset.CustomDM &&
-                    weapon.SlayerCreatureType == ACE.Entity.Enum.CreatureType.Human)
-                {
-                    var playerAttacker = wielder as Player;
-                    var playerDefender = target as Player;
-
-                    if (playerAttacker != null && playerDefender != null)
-                    {
-                        if (weapon.ItemType == ItemType.Caster)
-                            return 1.2f;
-                        else if (weapon.ItemType == ItemType.MissileWeapon)
-                            return 2.9f;
-                        else if (weapon.ItemType == ItemType.MeleeWeapon)
-                            return 3.4f;
-                    }
-                }
+                // TODO: scale with base weapon skill?
                 return (float)weapon.SlayerDamageBonus;
             }
-
-            return defaultModifier;
+            else
+                return defaultModifier;
         }
 
         public DamageType? ResistanceModifierType
