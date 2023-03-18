@@ -650,7 +650,7 @@ namespace ACE.Server.WorldObjects
 
             float criticalStrikeMod;
 
-            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && !isPvP)
+            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
             {
                 return 0.2f;
             }
@@ -732,7 +732,7 @@ namespace ACE.Server.WorldObjects
 
             float cripplingBlowMod = 0.0f;
 
-            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && !isPvP)
+            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
             {
                 if (GetImbuedSkillType(skill) == ImbuedSkillType.Magic)
                     return 2.0f;
@@ -768,7 +768,7 @@ namespace ACE.Server.WorldObjects
 
             var rendingMod = 1.0f;
 
-            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && !isPvP)
+            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
             {
                 rendingMod = 1.75f; // Equivalent to level IV Elemental Vulnerability.
             }
