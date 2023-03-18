@@ -494,8 +494,26 @@ namespace ACE.Server.WorldObjects
             {
                 if (Common.ConfigManager.Config.Server.WorldRuleset != Common.Ruleset.CustomDM)
                     resistMod = 1.0f + (float)(weapon.ResistanceModifier ?? defaultModifier);       // 1.0 in the data, equivalent to a level 5 vuln
-                else
+                else if (!isPvP)
                     resistMod = (float)(weapon.ResistanceModifier ?? 1.5f); // Equivalent to level III Elemental Vulnerability.
+                else
+                {
+                    var baseSkill = GetBaseSkillImbued(skill);
+
+                    switch (GetImbuedSkillType(skill))
+                    {
+                        case ImbuedSkillType.Melee:
+                            resistMod = baseSkill / 160.0f;
+                            break;
+
+                        case ImbuedSkillType.Missile:
+                        case ImbuedSkillType.Magic:
+                            resistMod = baseSkill / 144.0f;
+                            break;
+                    }
+                    float MaxResistCleaveMod = 2.0f; // Equivilent to level 5 elemental vuln
+                    resistMod = Math.Clamp(resistMod, 1.0f, MaxResistCleaveMod);
+                }
             }
 
             // handle elemental resistance rending
