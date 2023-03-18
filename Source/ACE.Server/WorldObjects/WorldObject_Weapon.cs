@@ -746,8 +746,6 @@ namespace ACE.Server.WorldObjects
 
             var baseSkill = GetBaseSkillImbued(skill);
 
-            var baseMod = 1.0f;
-
             float cripplingBlowMod = 0.0f;
 
             if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)

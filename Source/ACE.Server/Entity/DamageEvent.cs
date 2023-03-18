@@ -216,7 +216,7 @@ namespace ACE.Server.Entity
 
             // get base damage
             if (playerAttacker != null)
-                GetBaseDamage(playerAttacker);
+                GetBaseDamage(playerAttacker, pkBattle);
             else
                 GetBaseDamage(attacker, AttackMotion ?? MotionCommand.Invalid, AttackHook);
 
@@ -515,7 +515,7 @@ namespace ACE.Server.Entity
         /// <summary>
         /// Returns the base damage for a player attacker
         /// </summary>
-        public void GetBaseDamage(Player attacker)
+        public void GetBaseDamage(Player attacker, bool isPvP)
         {
             if (DamageSource.ItemType == ItemType.MissileWeapon)
             {
@@ -537,6 +537,15 @@ namespace ACE.Server.Entity
             BaseDamageMod = attacker.GetBaseDamageMod(DamageSource);
 
             BaseDamageMod.BaseDamage.MaxDamage += attacker.GetUnarmedSkillDamageBonus();
+
+            if (isPvP && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+            {
+                var weapon = attacker.GetEquippedWeapon();
+                if (weapon != null && weapon.IsEnchantable)
+                {
+                    BaseDamageMod.BaseDamage.MaxDamage += 22; //inherent blood drinker 7
+                }
+            }
 
             // some quest bows can have built-in damage bonus
             if (Weapon?.WeenieType == WeenieType.MissileLauncher)
