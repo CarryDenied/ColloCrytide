@@ -786,7 +786,7 @@ namespace ACE.Server.WorldObjects
 
             var rendingMod = 1.0f;
 
-            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && !isPvP)
             {
                 rendingMod = 1.75f; // Equivalent to level IV Elemental Vulnerability.
             }
@@ -818,7 +818,7 @@ namespace ACE.Server.WorldObjects
         {
             var armorRendingMod = 1.0f;
 
-            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && !isPvP)
+            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
                 armorRendingMod -= 1.0f/3.0f; // Equivalent to Imperil IV for 300 AL armor.
             else
             {
