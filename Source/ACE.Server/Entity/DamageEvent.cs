@@ -443,7 +443,7 @@ namespace ACE.Server.Entity
             }
 
             // get shield modifier
-            ShieldMod = defender.GetShieldMod(attacker, DamageType, Weapon);
+            ShieldMod = defender.GetShieldMod(attacker, DamageType, Weapon, pkBattle);
 
             // calculate final output damage
             Damage = DamageBeforeMitigation * ArmorMod * ShieldMod * ResistanceMod * DamageResistanceRatingMod;

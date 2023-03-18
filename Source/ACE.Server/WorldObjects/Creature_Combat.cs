@@ -785,7 +785,7 @@ namespace ACE.Server.WorldObjects
         /// <summary>
         /// Return the scalar damage absorbed by a shield
         /// </summary>
-        public float GetShieldMod(WorldObject attacker, DamageType damageType, WorldObject weapon)
+        public float GetShieldMod(WorldObject attacker, DamageType damageType, WorldObject weapon, bool isPvP)
         {
             // ensure combat stance
             if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.EoR && CombatMode == CombatMode.NonCombat)
@@ -878,6 +878,12 @@ namespace ACE.Server.WorldObjects
             // SL is multiplied by existing AL
             var shieldMod = SkillFormula.CalcArmorMod(effectiveLevel);
             //Console.WriteLine("ShieldMod: " + shieldMod);
+
+            if (isPvP && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+            {
+                shieldMod = 1f + 0.25f * (shieldMod - 1f); //Shields now reduce up to 25% damage in pvp.
+            }
+
             return shieldMod;
         }
 
