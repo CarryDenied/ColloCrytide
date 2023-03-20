@@ -666,6 +666,8 @@ namespace ACE.Server.WorldObjects
 
                 if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
                 {
+                    return true;
+                    /*
                     switch (heritageGroup)
                     {
                         case HeritageGroup.Aluvian:
@@ -681,6 +683,7 @@ namespace ACE.Server.WorldObjects
                                 return false;
                             break;
                     }
+                    */
                 }
                 else if (Common.ConfigManager.Config.Server.WorldRuleset <= Common.Ruleset.Infiltration)
                 {
