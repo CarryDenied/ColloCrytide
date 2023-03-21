@@ -473,12 +473,15 @@ namespace ACE.Server.WorldObjects
                     effectiveAL += defender.EnchantmentManager.GetBodyArmorMod(false); // Take into account armor debuffs now, but only if weapon isn't hollow.
 
                 if(isPvP)
-                    effectiveAL += 785; //inherent armor 7 + major armor ward + impen that can't be ignored by hollows
+                    effectiveAL += 525; //we're flatting the damage against various armor types here
             }
 
             // Armor Rending reduces physical armor too?
             if (effectiveAL > 0)
                 effectiveAL *= armorRendingMod;
+
+            if (isPvP && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+                effectiveAL += 265; //inherent armor 7 + major armor ward that can't be armor rended
 
             var armorMod = SkillFormula.CalcArmorMod(effectiveAL);
 
