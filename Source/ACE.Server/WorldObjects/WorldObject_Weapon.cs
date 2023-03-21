@@ -882,14 +882,24 @@ namespace ACE.Server.WorldObjects
             set { if (!value.HasValue) RemoveProperty(PropertyFloat.IgnoreShield); else SetProperty(PropertyFloat.IgnoreShield, value.Value); }
         }
 
-        public float GetIgnoreShieldMod(WorldObject weapon)
+        public float GetIgnoreShieldMod(WorldObject weapon, bool isPvP = false)
         {
             var creatureMod = IgnoreShield ?? 0.0f;
-            double weaponMod;
-            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && weapon != null && weapon.IsTwoHanded)
-                weaponMod = 0.5f;
-            else
-                weaponMod = weapon?.IgnoreShield ?? 0.0f;
+            double weaponMod = 0;
+
+            if (weapon != null)
+            {
+                weaponMod = weapon.IgnoreShield ?? 0.0;
+                if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+                {
+                    if (weapon.IsTwoHanded)
+                        weaponMod = 0.5f;
+
+                    if (isPvP && weaponMod > 0)
+                        weaponMod = 0.95f;
+                }
+            }
+
 
             return 1.0f - (float)Math.Max(creatureMod, weaponMod);
         }

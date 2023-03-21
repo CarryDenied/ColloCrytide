@@ -866,7 +866,7 @@ namespace ACE.Server.WorldObjects
 
             effectiveLevel *= effectiveRL;
 
-            var ignoreShieldMod = attacker.GetIgnoreShieldMod(weapon);
+            var ignoreShieldMod = attacker.GetIgnoreShieldMod(weapon, isPvP);
             //Console.WriteLine($"IgnoreShieldMod: {ignoreShieldMod}");
 
             //var pkBattle = player != null && attacker is Player;
