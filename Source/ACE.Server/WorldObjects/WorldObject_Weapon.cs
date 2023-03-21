@@ -454,7 +454,7 @@ namespace ACE.Server.WorldObjects
 
                     if (playerAttacker != null && playerDefender != null)
                     {
-                        return 1.3f;
+                        return 1.2f;
                         //        if (weapon.ItemType == ItemType.Caster)
                         //            return 1.2f;
                         //        else if (weapon.ItemType == ItemType.MissileWeapon)
