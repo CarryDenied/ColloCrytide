@@ -583,13 +583,13 @@ namespace ACE.Server.WorldObjects
                     }
                 }
                 baseDamage = ThreadSafeRandom.Next(Spell.MinDamage, Spell.MaxDamage);
-                
+
                 if (Common.ConfigManager.Config.Server.WorldRuleset <= Common.Ruleset.Infiltration)
                 {
                     if (sourcePlayer == null)
                         baseDamage /= 2; // Monsters do half projectile spell damage.
-                    //else if(isPVP && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
-                        //baseDamage = (int)(baseDamage * 0.75f);
+                                         //else if(isPVP && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+                                         //baseDamage = (int)(baseDamage * 0.75f);
                 }
 
                 weaponResistanceMod = GetWeaponResistanceModifier(weapon, sourceCreature, attackSkill, Spell.DamageType);
@@ -599,7 +599,8 @@ namespace ACE.Server.WorldObjects
 
                 resistanceMod = (float)Math.Max(0.0f, target.GetResistanceMod(resistanceType, this, null, weaponResistanceMod));
 
-                if (sourcePlayer != null && targetPlayer != null && Spell.DamageType == DamageType.Nether)
+
+                if (isPVP && Spell.DamageType == DamageType.Nether)
                 {
                     // for direct damage from void spells in pvp,
                     // apply void_pvp_modifier *on top of* the player's natural resistance to nether
@@ -608,10 +609,19 @@ namespace ACE.Server.WorldObjects
                     resistanceMod *= (float)PropertyManager.GetDouble("void_pvp_modifier").Item;
                 }
 
+            
                 finalDamage = baseDamage + critDamageBonus + skillBonus;
 
                 finalDamage *= elementalDamageMod * slayerMod * resistanceMod * absorbMod;
+                if (isPVP)
+                {
+                    if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+                    {
+                        finalDamage += (int)((float)finalDamage * .2);
+                    }
+                }
             }
+
 
             // show debug info
             if (sourceCreature != null && sourceCreature.DebugDamage.HasFlag(Creature.DebugDamageType.Attacker))
