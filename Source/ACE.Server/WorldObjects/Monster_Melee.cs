@@ -433,7 +433,7 @@ namespace ACE.Server.WorldObjects
         /// Returns the percent of damage absorbed by layered armor + clothing
         /// </summary>
         /// <param name="armors">The list of armor/clothing covering the targeted body part</param>
-        public float GetArmorMod(Creature defender, DamageType damageType, List<WorldObject> armors, WorldObject weapon, float armorRendingMod = 1.0f)
+        public float GetArmorMod(Creature defender, DamageType damageType, List<WorldObject> armors, WorldObject weapon, float armorRendingMod = 1.0f, bool isPvP = false)
         {
             var ignoreMagicArmor =  (weapon?.IgnoreMagicArmor ?? false)  || IgnoreMagicArmor;
             var ignoreMagicResist = (weapon?.IgnoreMagicResist ?? false) || IgnoreMagicResist;
@@ -441,8 +441,8 @@ namespace ACE.Server.WorldObjects
             var effectiveAL = 0.0f;
 
             foreach (var armor in armors)
-                effectiveAL += defender.GetArmorMod(armor, damageType, ignoreMagicArmor);
-
+                effectiveAL += defender.GetArmorMod(armor, damageType, ignoreMagicArmor, isPvP);
+            
             // life spells
             // additive: armor/imperil
             int bodyArmorMod;
@@ -471,6 +471,9 @@ namespace ACE.Server.WorldObjects
 
                 if (!ignoreMagicResist)
                     effectiveAL += defender.EnchantmentManager.GetBodyArmorMod(false); // Take into account armor debuffs now, but only if weapon isn't hollow.
+
+                if(isPvP)
+                    effectiveAL += 785; //inherent armor 7 + major armor ward + impen that can't be ignored by hollows
             }
 
             // Armor Rending reduces physical armor too?
@@ -581,7 +584,7 @@ namespace ACE.Server.WorldObjects
         /// Returns the effective AL for 1 piece of armor/clothing
         /// </summary>
         /// <param name="armor">A piece of armor or clothing</param>
-        public float GetArmorMod(WorldObject armor, DamageType damageType, bool ignoreMagicArmor)
+        public float GetArmorMod(WorldObject armor, DamageType damageType, bool ignoreMagicArmor, bool isPvP = false)
         {
             // get base armor/resistance level
             var baseArmor = armor.GetProperty(PropertyInt.ArmorLevel) ?? 0;
@@ -596,7 +599,10 @@ namespace ACE.Server.WorldObjects
             // armor level additives
             var armorMod = armor.EnchantmentManager.GetArmorMod();
 
-            if (ignoreMagicArmor)
+            if (isPvP && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+                armorMod += 520; //inherent impen that can be ignored by hollows.
+
+            if (ignoreMagicArmor)  
                 armorMod = (int)Math.Round(IgnoreMagicArmorScaled(armorMod));
 
             // Console.WriteLine("Impen: " + armorMod);
