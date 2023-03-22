@@ -47,209 +47,16 @@ namespace ACE.Server.WorldObjects
                     if (item.ItemType == ItemType.MeleeWeapon || item.ItemType == ItemType.MissileWeapon || item.ItemType == ItemType.Caster)
                     {
 
-                        switch (selectSlayerType)
-                        {
-                            case 1:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Banderling;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
+                        item.SlayerCreatureType = (ACE.Entity.Enum.CreatureType)selectSlayerType;
+                        item.SlayerDamageBonus = 1.20f;
+                        item.SlayerAdded = 1;
+                        Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
 
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
+                        if (extraChance <= 15)
+                            return ModifyQuestItem(item, 2, 3, true);
 
-                                return item;
-                            case 2:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Drudge;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 3:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Gromnie;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 4:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Lugian;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 5:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Grievver;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 6:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Human;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 7:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Mattekar;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 8:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Mite;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 9:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Mosswart;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 10:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Mumiyah;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 11:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Olthoi;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 12:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.PhyntosWasp;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 13:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Shadow;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 14:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Shreth;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 15:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Skeleton;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 16:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Tumerok;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 17:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Tusker;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 18:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Virindi;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 19:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Wisp;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                            case 20:
-                                item.SlayerCreatureType = ACE.Entity.Enum.CreatureType.Zefir;
-                                item.SlayerDamageBonus = 1.20f;
-                                item.SlayerAdded = 1;
-                                Session.Network.EnqueueSend(new GameMessageSystemChat($"This quest item was granted {item.SlayerCreatureType} slayer!", ChatMessageType.System));
-
-                                if (extraChance <= 15)
-                                    return ModifyQuestItem(item, 2, 3, true);
-
-                                return item;
-                        }
+                        return item;
+                    
                     }
                     else if (item.ItemType == ItemType.Armor || item.ItemType == ItemType.Clothing)
                     {
@@ -340,7 +147,7 @@ namespace ACE.Server.WorldObjects
                     }
                     else if (item.ItemType == ItemType.Armor || item.ItemType == ItemType.Clothing)
                     {
-                        var selectSkill = ThreadSafeRandom.Next(1, 21);
+                        var selectSkill = ThreadSafeRandom.Next(1, 14);
 
                         switch (selectSkill)
                         {
@@ -839,7 +646,7 @@ namespace ACE.Server.WorldObjects
                 case 5: // Weapon Skill Cantrips & Armor Ratings
                     if (item.ItemType == ItemType.MeleeWeapon || item.ItemType == ItemType.MissileWeapon || item.ItemType == ItemType.Caster)
                     {
-                        var selectSkill = ThreadSafeRandom.Next(1, 21);
+                        var selectSkill = ThreadSafeRandom.Next(1, 25);
 
                         switch (selectSkill)
                         {
@@ -1140,7 +947,7 @@ namespace ACE.Server.WorldObjects
 
         public WorldObject GiveSlayer(WorldObject item)
         {
-            var selectSlayerType = ThreadSafeRandom.Next(1, 24);
+            var selectSlayerType = ThreadSafeRandom.Next(1, 20);
 
             switch (selectSlayerType)
             {

@@ -766,6 +766,10 @@ namespace ACE.Server.Managers
             {
                 target.ItemSpellcraft = (target.ItemSpellcraft ?? 0) + difficulty;
                 target.ItemDifficulty = (target.ItemDifficulty ?? 0) + difficulty;
+                int newMaxMana = (target.ItemMaxMana ?? 0);
+                target.ItemMaxMana = newMaxMana + difficulty * 4;
+                target.ItemCurMana = target.ItemMaxMana;
+                target.ItemManaCost = (target.ItemManaCost ?? 0) + difficulty;
             }
             if (target.UiEffects == null)
             {
