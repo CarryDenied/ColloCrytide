@@ -818,7 +818,10 @@ namespace ACE.Server.WorldObjects
             var armorRendingMod = 1.0f;
 
             if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
-                armorRendingMod -= 1.0f/3.0f; // Equivalent to Imperil IV for 300 AL armor.
+                if (isPvP)
+                    armorRendingMod = 0.3746f; //This should increase your damage against max al by around 25%. 
+                else
+                    armorRendingMod -= 1.0f/3.0f; // Equivalent to Imperil IV for 300 AL armor.
             else
             {
                 // % of armor ignored, min 0%, max 60%
@@ -850,11 +853,14 @@ namespace ACE.Server.WorldObjects
             set { if (!value.HasValue) RemoveProperty(PropertyFloat.IgnoreArmor); else SetProperty(PropertyFloat.IgnoreArmor, value.Value); }
         }
 
-        public float GetArmorCleavingMod(WorldObject weapon)
+        public float GetArmorCleavingMod(WorldObject weapon, bool isPvP = false)
         {
             // investigate: should this value be on creatures directly?
             var creatureMod = GetArmorCleavingMod();
             var weaponMod = weapon != null ? weapon.GetArmorCleavingMod() : 1.0f;
+            if (isPvP && weaponMod != 1.0f && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM){
+                weaponMod = 0.475f; //This should reduce max AL by around 20%
+            }
 
             return Math.Min(creatureMod, weaponMod);
         }
