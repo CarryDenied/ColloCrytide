@@ -442,7 +442,7 @@ namespace ACE.Server.WorldObjects
 
             foreach (var armor in armors)
                 effectiveAL += defender.GetArmorMod(armor, damageType, ignoreMagicArmor, isPvP);
-            
+
             // life spells
             // additive: armor/imperil
             int bodyArmorMod;
@@ -471,9 +471,6 @@ namespace ACE.Server.WorldObjects
 
                 if (!ignoreMagicResist)
                     effectiveAL += defender.EnchantmentManager.GetBodyArmorMod(false); // Take into account armor debuffs now, but only if weapon isn't hollow.
-
-                if(isPvP)
-                    effectiveAL += 525; //we're flatting the damage against various armor types here
             }
 
             // Armor Rending reduces physical armor too?
@@ -481,7 +478,11 @@ namespace ACE.Server.WorldObjects
                 effectiveAL *= armorRendingMod;
 
             if (isPvP && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
-                effectiveAL += 265; //inherent armor 7 + major armor ward that can't be armor rended
+            {
+                //Here we're flattening the difference between armor types.
+                //1965 is what is needed to make the difference between the best robe and the best armor 30% (ignoring prots)
+                effectiveAL += 1965;
+            }
 
             var armorMod = SkillFormula.CalcArmorMod(effectiveAL);
 
@@ -601,9 +602,6 @@ namespace ACE.Server.WorldObjects
 
             // armor level additives
             var armorMod = armor.EnchantmentManager.GetArmorMod();
-
-            if (isPvP && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
-                armorMod += 520; //inherent impen that can be ignored by hollows.
 
             if (ignoreMagicArmor)  
                 armorMod = (int)Math.Round(IgnoreMagicArmorScaled(armorMod));
