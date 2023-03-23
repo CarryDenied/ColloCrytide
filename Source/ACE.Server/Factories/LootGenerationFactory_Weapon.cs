@@ -151,9 +151,6 @@ namespace ACE.Server.Factories
             if (Common.ConfigManager.Config.Server.WorldRuleset != Common.Ruleset.CustomDM)
                 return false;
 
-            if (wo.IsTwoHanded)
-                return false; // Two-handed weapons area always shield cleaving so this is unnecessary.
-
             var chance = ExtraMutationEffects.GetShieldCleavingChanceForTier(treasureDeath.Tier);
             chance = ApplyQualityModToExtraMutationChance(chance, treasureDeath.LootQualityMod);
             if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
