@@ -369,12 +369,15 @@ namespace ACE.Server.Entity
                 }
             }
 
+            if(pkBattle && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+                DamageBeforeMitigation *= 3.5f;       
+
             // armor rending and cleaving
             var armorRendingMod = 1.0f;
             if (Weapon != null && Weapon.HasImbuedEffect(ImbuedEffectType.ArmorRending))
                 armorRendingMod = WorldObject.GetArmorRendingMod(attackSkill, pkBattle);
 
-            var armorCleavingMod = attacker.GetArmorCleavingMod(Weapon);
+            var armorCleavingMod = attacker.GetArmorCleavingMod(Weapon, pkBattle);
 
             var ignoreArmorMod = Math.Min(armorRendingMod, armorCleavingMod);
 
