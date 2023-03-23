@@ -898,7 +898,7 @@ namespace ACE.Server.WorldObjects
                 weaponMod = weapon.IgnoreShield ?? 0.0;
                 if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
                 {
-                    if (weapon.IsTwoHanded)
+                    if (weapon.IsTwoHanded && !isPvP)
                         weaponMod = 0.5f;
 
                     if (isPvP && weaponMod > 0)
