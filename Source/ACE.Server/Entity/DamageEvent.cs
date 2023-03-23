@@ -239,7 +239,7 @@ namespace ACE.Server.Entity
             // ratings
             DamageRatingBaseMod = Creature.GetPositiveRatingMod(attacker.GetDamageRating());
             RecklessnessMod = Creature.GetRecklessnessMod(attacker, defender);
-            SneakAttackMod = attacker.GetSneakAttackMod(defender);
+            SneakAttackMod = attacker.GetSneakAttackMod(defender, pkBattle);
             HeritageMod = attacker.GetHeritageBonus(Weapon) ? 1.05f : 1.0f;
 
             TacticAndTechniqueType attackerTechniqueId = TacticAndTechniqueType.None;

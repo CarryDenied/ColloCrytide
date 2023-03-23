@@ -937,12 +937,16 @@ namespace ACE.Server.WorldObjects
             return recklessnessMod;
         }
 
-        public float GetSneakAttackMod(WorldObject target)
+        public float GetSneakAttackMod(WorldObject target, bool isPvP = false)
         {
             if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.Infiltration)
                 return 1.0f;
             else if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
             {
+                //Removing sneak attack from pvp. With damage being balanced around shields, sneak attack is redundant,
+                //and we already have too many damage scalars.
+                if (isPvP)
+                    return 1.0f;
                 // ensure creature target
                 var creatureTarget = target as Creature;
                 if (creatureTarget == null)
