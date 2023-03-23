@@ -259,7 +259,9 @@ namespace ACE.Server.Entity
                 if (defenderTechniqueTrinket != null)
                     defenderTechniqueId = (TacticAndTechniqueType)defenderTechniqueTrinket.TacticAndTechniqueId;
 
-                if (attackerTechniqueId == TacticAndTechniqueType.Reckless)
+                //Removing reckless from pvp. Vs mages and archers it's "Trade offer: 20% more damage in exchange for nothing!"
+                //and we already have too many damage scalars.
+                if (attackerTechniqueId == TacticAndTechniqueType.Reckless && !pkBattle)
                 {
                     if (CombatType == CombatType.Melee || attacker.GetDistance(defender) < 3) // Make sure we're close to each other.
                     {
