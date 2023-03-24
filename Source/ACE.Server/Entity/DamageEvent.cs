@@ -291,8 +291,13 @@ namespace ACE.Server.Entity
 
             var attackSkill = attacker.GetCreatureSkill(attacker.GetCurrentWeaponSkill());
 
+            int numMods = 1; //just gonna assume the player is using a vuln of some kind. If he isn't, his damage will suck anyway.
+
             // critical hit?
             CriticalChance = WorldObject.GetWeaponCriticalChance(Weapon, attacker, attackSkill, defender);
+            if (CriticalChance > .1001)  //001 because floating points suck
+                numMods += 1;
+            Console.WriteLine($"{numMods} {CriticalChance}");
 
             if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
             {
@@ -339,6 +344,11 @@ namespace ACE.Server.Entity
             if (playerDefender != null && (playerDefender.IsLoggingOut || playerDefender.PKLogout))
                 CriticalChance = 1.0f;
 
+            CriticalDamageMod = 1.0f + WorldObject.GetWeaponCritDamageMod(Weapon, attacker, attackSkill, defender);
+
+            if (CriticalDamageMod > 2f)
+                numMods += 1;
+
             if (CriticalChance > ThreadSafeRandom.Next(0.0f, 1.0f))
             {
                 if (playerDefender != null && playerDefender.AugmentationCriticalDefense > 0)
@@ -356,7 +366,6 @@ namespace ACE.Server.Entity
 
                     // verify: CriticalMultiplier only applied to the additional crit damage,
                     // whereas CD/CDR applied to the total damage (base damage + additional crit damage)
-                    CriticalDamageMod = 1.0f + WorldObject.GetWeaponCritDamageMod(Weapon, attacker, attackSkill, defender);
 
                     CriticalDamageRatingMod = Creature.GetPositiveRatingMod(attacker.GetCritDamageRating());
 
@@ -370,9 +379,7 @@ namespace ACE.Server.Entity
                     DamageBeforeMitigation = BaseDamageMod.MaxDamage * AttributeMod * PowerMod * SlayerMod * DamageRatingMod * CriticalDamageMod;
                 }
             }
-
-            if(pkBattle && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
-                DamageBeforeMitigation *= 4.5f;       
+       
 
             // armor rending and cleaving
             var armorRendingMod = 1.0f;
@@ -382,6 +389,24 @@ namespace ACE.Server.Entity
             var armorCleavingMod = attacker.GetArmorCleavingMod(Weapon, pkBattle);
 
             var ignoreArmorMod = Math.Min(armorRendingMod, armorCleavingMod);
+
+            if (pkBattle && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+            {
+                DamageBeforeMitigation *= 4.5f;
+                if (Weapon != null) {
+                    if (SlayerMod > 1)
+                        numMods += 1;
+                    if (ignoreArmorMod < 1)
+                        numMods += 1;
+                    if (Weapon.IgnoreMagicResist)
+                        numMods += 1;
+                    if (Weapon.IgnoreShield > 0)
+                        numMods += 1;
+
+                    float modScaling = -0.002f * numMods * numMods + 0.842f; //this formula reduces weapon damage more the more mods there are.
+                    DamageBeforeMitigation *= modScaling;
+                 }               
+            }
 
             //if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && pkBattle)
             //    ignoreArmorMod *= 0.7f; // Armor is reduced during PvP.
