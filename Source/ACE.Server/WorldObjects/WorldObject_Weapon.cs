@@ -371,9 +371,13 @@ namespace ACE.Server.WorldObjects
         {
             var critDamageMod = (float)(weapon?.GetProperty(PropertyFloat.CriticalMultiplier) ?? defaultCritDamageMultiplier);
 
+            bool isPvP = wielder is Player && target is Player;
+            if (isPvP && critDamageMod > defaultCritDamageMultiplier && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+                critDamageMod = 1.5f;
+
             if (weapon != null && weapon.HasImbuedEffect(ImbuedEffectType.CripplingBlow))
             {
-                bool isPvP = wielder is Player && target is Player;
+
                 var cripplingBlowMod = GetCripplingBlowMod(skill, isPvP);
 
                 critDamageMod = Math.Max(critDamageMod, cripplingBlowMod);
@@ -454,7 +458,7 @@ namespace ACE.Server.WorldObjects
 
                     if (playerAttacker != null && playerDefender != null)
                     {
-                        return 1.2f;
+                        return 1.15f;
                         //        if (weapon.ItemType == ItemType.Caster)
                         //            return 1.2f;
                         //        else if (weapon.ItemType == ItemType.MissileWeapon)
@@ -512,7 +516,7 @@ namespace ACE.Server.WorldObjects
                             resistMod = baseSkill / 144.0f;
                             break;
                     }
-                    float MaxResistCleaveMod = 2.0f; // Equivilent to level 5 elemental vuln
+                    float MaxResistCleaveMod = 2.45f; // Almost a level 6 vuln
                     resistMod = Math.Clamp(resistMod, 1.0f, MaxResistCleaveMod);
                 }
             }
@@ -753,6 +757,8 @@ namespace ACE.Server.WorldObjects
             {
                 if (GetImbuedSkillType(skill) == ImbuedSkillType.Magic)
                     return 2.0f;
+                else if (isPvP)
+                    return 2.0f;
                 else
                     return 2.5f;
             }
@@ -819,7 +825,7 @@ namespace ACE.Server.WorldObjects
 
             if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
                 if (isPvP)
-                    armorRendingMod = 0.3746f; //This should increase your damage against max al by around 25%. 
+                    armorRendingMod = 0.55f;
                 else
                     armorRendingMod -= 1.0f/3.0f; // Equivalent to Imperil IV for 300 AL armor.
             else
@@ -858,9 +864,9 @@ namespace ACE.Server.WorldObjects
             // investigate: should this value be on creatures directly?
             var creatureMod = GetArmorCleavingMod();
             var weaponMod = weapon != null ? weapon.GetArmorCleavingMod() : 1.0f;
-            if (isPvP && weaponMod != 1.0f && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM){
-                weaponMod = 0.475f; //This should reduce max AL by around 20%
-            }
+            //if (isPvP && weaponMod != 1.0f && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM){
+            //    weaponMod = 0.75f;
+            //}
 
             return Math.Min(creatureMod, weaponMod);
         }
@@ -899,7 +905,7 @@ namespace ACE.Server.WorldObjects
                 if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
                 {
                     if (isPvP && weaponMod > 0)
-                        weaponMod = 0.95f;
+                        weaponMod = 0.90f;
                 }
             }
 

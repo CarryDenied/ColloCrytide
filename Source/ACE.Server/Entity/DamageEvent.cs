@@ -372,7 +372,7 @@ namespace ACE.Server.Entity
             }
 
             if(pkBattle && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
-                DamageBeforeMitigation *= 3.5f;       
+                DamageBeforeMitigation *= 4.5f;       
 
             // armor rending and cleaving
             var armorRendingMod = 1.0f;
