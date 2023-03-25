@@ -404,7 +404,52 @@ namespace ACE.Server.Entity
 
                     float modScaling = -0.002f * numMods * numMods + 0.842f; //this formula reduces weapon damage more the more mods there are.
                     DamageBeforeMitigation *= modScaling;
-                 }               
+                 }
+
+                if (Weapon != null)
+                {
+                    //These numbers are all what it'd dake to adjust max weapons dps of one type to a different type
+                    //based on what endy's tinkering calculator's numbers x weapon speed. 
+                    if (Weapon.WeaponSkill == Skill.Axe)
+                    {
+                        //this should make axe the same as sword. They cost the same and should do the same dps.
+                        if (Weapon.IsTwoHanded)
+                            DamageBeforeMitigation *= 1.062422489f;
+                        else
+                            DamageBeforeMitigation *= 1.146141528f;
+                    }
+                    else if (Weapon.WeaponSkill == Skill.Mace)
+                    {
+                        //This should make mace's dps the same as sword's
+                        if (Weapon.IsTwoHanded)
+                            DamageBeforeMitigation *= 1.062422489f;
+                        else
+                            DamageBeforeMitigation *= 1.147135079f;
+                    }
+                    else if (Weapon.WeaponSkill == Skill.Spear)
+                    {
+                        //Spear should be worse than sword because it gets better defensive stats and can eventually wear
+                        //whatever armor they want. Math says max skill will hit a 10 quick guy about 25% more than a 100
+                        //quick guy, xor the hp difference would be around 13%.
+                        //I made spear about 15%~ worse than sword. I bet people will bitch and not use it, but we'll see.
+                        if (Weapon.IsTwoHanded)
+                            DamageBeforeMitigation *= 0.9750648172f;
+                        else
+                            DamageBeforeMitigation *= 0.802829842f;
+                    }
+                    else if (Weapon.WeaponSkill == Skill.Staff)
+                        DamageBeforeMitigation *= 1.045254308f;
+                    else if (Weapon.WeaponSkill == Skill.Dagger)
+                    {
+                        //Daggar has the same advantages as spear, but it's cheaper and has bleed.
+                        //I made it 25%~ worse than sword.
+                        AttackType attackType = attacker.GetWeaponAttackType(Weapon);
+                        if ((attackType | AttackType.MultiStrike) == AttackType.MultiStrike)
+                            DamageBeforeMitigation *= 1.523346097f;
+                        else
+                            DamageBeforeMitigation *= 1.128890968f;
+                    }
+                }
             }
 
             //if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && pkBattle)
