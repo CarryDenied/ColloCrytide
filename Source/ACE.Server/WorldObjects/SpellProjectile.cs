@@ -617,7 +617,7 @@ namespace ACE.Server.WorldObjects
                 {
                     if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
                     {
-                        finalDamage += (int)((float)finalDamage * .2);
+                        finalDamage += (int)((float)finalDamage * .35);
                     }
                 }
             }
