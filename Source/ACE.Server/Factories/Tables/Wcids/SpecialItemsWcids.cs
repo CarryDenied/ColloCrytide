@@ -23,10 +23,15 @@ namespace ACE.Server.Factories.Tables.Wcids
 
         private static Dictionary<WeenieClassName, int> specialItemsUnmutatedAmount = new Dictionary<WeenieClassName, int>()
         {
-            {(WeenieClassName)50128,      10 }, // Spell Extraction Scroll VI
-            {(WeenieClassName)50129,      10 }, // Spell Extraction Scroll VII
-            {(WeenieClassName)50140,       1 }, // Minor Cantrip Extraction Scroll
-            {(WeenieClassName)50141,       1 }, // Major Cantrip Extraction Scroll
+            {(WeenieClassName)50128,      20 }, // Spell Extraction Scroll VI
+            {(WeenieClassName)50129,      20 }, // Spell Extraction Scroll VII
+            {(WeenieClassName)50140,       5 }, // Minor Cantrip Extraction Scroll
+            {(WeenieClassName)50141,       5 }, // Major Cantrip Extraction Scroll
+            {(WeenieClassName)11475,       5 }, // Black dye pot
+            {(WeenieClassName)7299,       10 }, // Diamond Scarabs
+            {(WeenieClassName)22499,       2 }, // Plentiful Healing kits
+            {(WeenieClassName)51445,       1 }, // Weapon tailoring kit
+            {(WeenieClassName)41956,       1 }, // Armor tailoring kit
         };
 
         private static ChanceTable<WeenieClassName> specialItemsSalvageWcids = new ChanceTable<WeenieClassName>(ChanceTableType.Weight)
