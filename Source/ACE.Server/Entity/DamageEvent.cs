@@ -391,7 +391,7 @@ namespace ACE.Server.Entity
 
             if (pkBattle && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
             {
-                DamageBeforeMitigation *= 4.5f;
+                DamageBeforeMitigation *= 5f;
                 if (Weapon != null) {
                     if (SlayerMod > 1)
                         numMods += 1;

@@ -458,7 +458,7 @@ namespace ACE.Server.WorldObjects
 
                     if (playerAttacker != null && playerDefender != null)
                     {
-                        return 1.15f;
+                        return 1.075f;
                         //        if (weapon.ItemType == ItemType.Caster)
                         //            return 1.2f;
                         //        else if (weapon.ItemType == ItemType.MissileWeapon)
@@ -905,7 +905,7 @@ namespace ACE.Server.WorldObjects
                 if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
                 {
                     if (isPvP && weaponMod > 0)
-                        weaponMod = 0.90f;
+                        weaponMod = 0.75f;
                 }
             }
 
