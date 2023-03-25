@@ -297,7 +297,6 @@ namespace ACE.Server.Entity
             CriticalChance = WorldObject.GetWeaponCriticalChance(Weapon, attacker, attackSkill, defender);
             if (CriticalChance > .1001)  //001 because floating points suck
                 numMods += 1;
-            Console.WriteLine($"{numMods} {CriticalChance}");
 
             if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
             {
