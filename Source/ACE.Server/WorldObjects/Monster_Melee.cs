@@ -469,13 +469,15 @@ namespace ACE.Server.WorldObjects
                 if (bodyArmorMod > effectiveAL)
                     effectiveAL = bodyArmorMod; // Body armor doesn't stack with equipment armor, use whichever is highest.
 
-
-                //I'm removing imperil from PvP because it's in a weird spot.
+                //Imperil is in a weird spot.
                 //It's a powerful team-wide damage buff that has no counter-play, and I can't balance damage around it because it's too hard to get.
-                //That said, because it's OP in PVE right now, it'll still be OP in pvp when kicking people out of dungeons.
-                //pve when not hollow, no pvp ever
-                if (!ignoreMagicResist && !isPvP)
-                    effectiveAL += defender.EnchantmentManager.GetBodyArmorMod(false); // Take into account armor debuffs now, but only if weapon isn't hollow.
+                //It's also OP in PVE right now, so it'll still be OP in pvp when kicking people out of dungeons.
+
+                float armorPenalty = defender.EnchantmentManager.GetBodyArmorMod(false);
+                if (isPvP)
+                    armorRendingMod += .1f * armorPenalty/200f; //Up to 10% armor ignore effectivly.
+                else if (!ignoreMagicResist)
+                    effectiveAL += armorPenalty; // Take into account armor debuffs now, but only if weapon isn't hollow.
             }
 
             // Armor Rending reduces physical armor too?
