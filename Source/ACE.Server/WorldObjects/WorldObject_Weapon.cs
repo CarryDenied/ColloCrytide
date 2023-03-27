@@ -458,7 +458,7 @@ namespace ACE.Server.WorldObjects
 
                     if (playerAttacker != null && playerDefender != null)
                     {
-                        return 1.075f;
+                        return 1.1f;
                         //        if (weapon.ItemType == ItemType.Caster)
                         //            return 1.2f;
                         //        else if (weapon.ItemType == ItemType.MissileWeapon)
@@ -675,7 +675,10 @@ namespace ACE.Server.WorldObjects
 
             if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
             {
-                return 0.2f;
+                if (!isPvP || skillType == ImbuedSkillType.Magic)
+                    return 0.2f;
+                else
+                    return 0.18f;
             }
             else
             {
@@ -825,7 +828,7 @@ namespace ACE.Server.WorldObjects
 
             if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
                 if (isPvP)
-                    armorRendingMod = 0.55f;
+                    armorRendingMod = 0.45f;
                 else
                     armorRendingMod -= 1.0f/3.0f; // Equivalent to Imperil IV for 300 AL armor.
             else
@@ -864,9 +867,9 @@ namespace ACE.Server.WorldObjects
             // investigate: should this value be on creatures directly?
             var creatureMod = GetArmorCleavingMod();
             var weaponMod = weapon != null ? weapon.GetArmorCleavingMod() : 1.0f;
-            //if (isPvP && weaponMod != 1.0f && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM){
-            //    weaponMod = 0.75f;
-            //}
+            if (isPvP && weaponMod != 1.0f && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM){
+                weaponMod = 0.65f;
+            }
 
             return Math.Min(creatureMod, weaponMod);
         }
@@ -905,7 +908,7 @@ namespace ACE.Server.WorldObjects
                 if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
                 {
                     if (isPvP && weaponMod > 0)
-                        weaponMod = 0.75f;
+                        weaponMod = 0.9f;
                 }
             }
 
