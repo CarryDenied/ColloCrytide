@@ -302,16 +302,19 @@ namespace ACE.Server.WorldObjects
         /// <summary>
         /// Returns the critical chance for the attack weapon
         /// </summary>
-        public static float GetWeaponCriticalChance(WorldObject weapon, Creature wielder, CreatureSkill skill, Creature target)
+        public static float GetWeaponCriticalChance(WorldObject weapon, Creature wielder, CreatureSkill skill, Creature target, bool isPvP)
         {
             var critRate = (float)(weapon?.CriticalFrequency ?? defaultPhysicalCritFrequency);
 
-            if (weapon != null && weapon.HasImbuedEffect(ImbuedEffectType.CriticalStrike))
+            float criticalStrikeBonus = 0;
+            if (weapon != null)
             {
-                var criticalStrikeBonus = GetCriticalStrikeMod(skill);
-
-                critRate = Math.Max(critRate, criticalStrikeBonus);
+                if (weapon.HasImbuedEffect(ImbuedEffectType.CriticalStrike))
+                    criticalStrikeBonus = GetCriticalStrikeMod(skill, isPvP);
+                else if (isPvP && critRate > defaultPhysicalCritFrequency && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+                    critRate = 0.13f;
             }
+            critRate = Math.Max(critRate, criticalStrikeBonus);
 
             if (wielder != null)
                 critRate += wielder.GetCritRating() * 0.01f;

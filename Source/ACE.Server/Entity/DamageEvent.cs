@@ -294,7 +294,7 @@ namespace ACE.Server.Entity
             int numMods = 1; //just gonna assume the player is using a vuln of some kind. If he isn't, his damage will suck anyway.
 
             // critical hit?
-            CriticalChance = WorldObject.GetWeaponCriticalChance(Weapon, attacker, attackSkill, defender);
+            CriticalChance = WorldObject.GetWeaponCriticalChance(Weapon, attacker, attackSkill, defender, pkBattle);
             if (CriticalChance > .1001)  //001 because floating points suck
                 numMods += 1;
 
