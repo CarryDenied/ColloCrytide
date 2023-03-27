@@ -956,6 +956,8 @@ namespace ACE.Server.WorldObjects
             if (pk_error != null)
                 castingPreCheckStatus = CastingPreCheckStatus.InvalidPKStatus;
 
+            bool isPvP = (target as Player) != null;
+
             switch (castingPreCheckStatus)
             {
                 case CastingPreCheckStatus.Success:
@@ -970,7 +972,10 @@ namespace ACE.Server.WorldObjects
                                 if (amulet.LeyLineTriggerChance == 1.0f || amulet.NextLeyLineTriggerTime <= currentTime)
                                 {
                                     var rng = new Random().NextDouble();
-                                    if (amulet.LeyLineTriggerChance > rng)
+                                    var procRate = amulet.LeyLineTriggerChance;
+                                    if (isPvP && spell.IsHarmful)                                
+                                        procRate = .03; //proc spells are super op.
+                                    if (procRate > rng)
                                     {
                                         amulet.NextLeyLineTriggerTime = currentTime + LeyLineAmulet.LeyLineTriggerInterval;
 
