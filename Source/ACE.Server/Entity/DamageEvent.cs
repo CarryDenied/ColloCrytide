@@ -391,7 +391,7 @@ namespace ACE.Server.Entity
 
             if (pkBattle && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
             {
-                DamageBeforeMitigation *= 5f;
+                DamageBeforeMitigation *= 5.5f; //boosting damage into the dps range I want
                 if (Weapon != null) {
                     if (SlayerMod > 1)
                         numMods += 1;
@@ -408,23 +408,31 @@ namespace ACE.Server.Entity
 
                 if (Weapon != null)
                 {
-                    //These numbers are all what it'd dake to adjust max weapons dps of one type to a different type
-                    //based on what endy's tinkering calculator's numbers x weapon speed. 
+                    //These adjustments are based on rough measurements of triple modded maxed weapons.
+                    float maceAndAxeTwoHandedAdjustment = 1.241851172f;
                     if (Weapon.WeaponSkill == Skill.Axe)
                     {
                         //this should make axe the same as sword. They cost the same and should do the same dps.
                         if (Weapon.IsTwoHanded)
-                            DamageBeforeMitigation *= 1.062422489f;
+                            DamageBeforeMitigation *= maceAndAxeTwoHandedAdjustment;
                         else
-                            DamageBeforeMitigation *= 1.146141528f;
+                            DamageBeforeMitigation *= 1.11884f;
                     }
                     else if (Weapon.WeaponSkill == Skill.Mace)
                     {
                         //This should make mace's dps the same as sword's
                         if (Weapon.IsTwoHanded)
-                            DamageBeforeMitigation *= 1.062422489f;
+                            DamageBeforeMitigation *= maceAndAxeTwoHandedAdjustment;
                         else
-                            DamageBeforeMitigation *= 1.147135079f;
+                            DamageBeforeMitigation *= 1.144f;
+                    }
+                    else if (Weapon.WeaponSkill == Skill.Sword)
+                    {
+                        AttackType attackType = attacker.GetWeaponAttackType(Weapon);
+                        if (Weapon.IsTwoHanded)
+                            DamageBeforeMitigation *= 1.155553023f;
+                        else if((attackType | AttackType.MultiStrike) == AttackType.MultiStrike)
+                            DamageBeforeMitigation *= 1.0435f;
                     }
                     else if (Weapon.WeaponSkill == Skill.Spear)
                     {
@@ -433,22 +441,33 @@ namespace ACE.Server.Entity
                         //quick guy, xor the hp difference would be around 13%.
                         //I made spear about 15%~ worse than sword. I bet people will bitch and not use it, but we'll see.
                         if (Weapon.IsTwoHanded)
-                            DamageBeforeMitigation *= 0.9750648172f;
-                        else
-                            DamageBeforeMitigation *= 0.802829842f;
+                            DamageBeforeMitigation *= 0.98458f;
+                        //else
+                        //  DamageBeforeMitigation *= 1.0f;
                     }
                     else if (Weapon.WeaponSkill == Skill.Staff)
-                        DamageBeforeMitigation *= 1.045254308f;
+                        DamageBeforeMitigation *= 1.10813f;
                     else if (Weapon.WeaponSkill == Skill.Dagger)
                     {
                         //Daggar has the same advantages as spear, but it's cheaper and has bleed.
                         //I made it 25%~ worse than sword.
                         AttackType attackType = attacker.GetWeaponAttackType(Weapon);
                         if ((attackType | AttackType.MultiStrike) == AttackType.MultiStrike)
-                            DamageBeforeMitigation *= 1.523346097f;
+                            DamageBeforeMitigation *= .855f;
                         else
-                            DamageBeforeMitigation *= 1.128890968f;
+                            DamageBeforeMitigation *= .7886f;
                     }
+                    //else if (Weapon.WeaponSkill == Skill.Crossbow)
+                      //  DamageBeforeMitigation *= 1f;
+                    else if (Weapon.WeaponSkill == Skill.ThrownWeapon)
+                        if (Weapon.IsAtlatl)
+                            DamageBeforeMitigation *= 1.006853798f;
+                        else
+                            DamageBeforeMitigation *= 2.66027f; //we probably need to add base damage instead of scaling it this much, but we'll see if anyone notices.
+                    else if (Weapon.WeaponSkill == Skill.Bow)
+                            DamageBeforeMitigation *= 0.9719f;
+                    else if (Weapon.WeaponSkill == Skill.UnarmedCombat)
+                        DamageBeforeMitigation *= 1.11f;
                 }
             }
 
