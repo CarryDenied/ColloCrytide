@@ -19,6 +19,11 @@ namespace ACE.Server.Factories.Tables.Wcids
             ((WeenieClassName)50129,      1.00f ), // Spell Extraction Scroll VII
             ((WeenieClassName)50140,      1.00f ), // Minor Cantrip Extraction Scroll
             ((WeenieClassName)50141,      1.00f ), // Major Cantrip Extraction Scroll
+            ((WeenieClassName)11475,      1.00f ), // Black dye pot
+            ((WeenieClassName)7299,       1.00f ), // Diamond Scarabs
+            ((WeenieClassName)22499,      1.00f ), // Plentiful Healing kits
+            ((WeenieClassName)51445,      1.00f ), // Weapon tailoring kit
+            ((WeenieClassName)41956,      1.00f ), // Armor tailoring kit
         };
 
         private static Dictionary<WeenieClassName, int> specialItemsUnmutatedAmount = new Dictionary<WeenieClassName, int>()
