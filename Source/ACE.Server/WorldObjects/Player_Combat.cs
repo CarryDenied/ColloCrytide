@@ -110,7 +110,7 @@ namespace ACE.Server.WorldObjects
                         if (creatureAttacker != null)
                         {
                             var chance = 0.4f;
-                            if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+                            if (chance > new Random().NextDouble())
                             {
                                 // Chance of striking back at the target when successfully evading an attack while using the Riposte technique.
                                 Session.Network.EnqueueSend(new GameMessageSystemChat($"You see an opening and quickly strike back at the {attacker.Name}!", ChatMessageType.CombatSelf));
@@ -355,7 +355,7 @@ namespace ACE.Server.WorldObjects
 
                     //Console.WriteLine($"NoStaminaUseChance: {noStaminaUseChance}");
 
-                    if (noStaminaUseChance <= ThreadSafeRandom.Next(0.0f, 1.0f))
+                    if (noStaminaUseChance <= new Random().NextDouble())
                         UpdateVitalDelta(Stamina, -1);
                 }
                 else

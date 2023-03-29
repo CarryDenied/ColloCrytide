@@ -1095,7 +1095,7 @@ namespace ACE.Server.WorldObjects
                 chance *= (float)dirtySkill.Current / attackSkill.Current;
             }
 
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
             if (rng >= chance)
                 return;
 
@@ -1245,7 +1245,7 @@ namespace ACE.Server.WorldObjects
             if(sourceAsPlayer != null)
                 activationChance += sourceAsPlayer.ScaleWithPowerAccuracyBar(0.25f);
 
-            if (activationChance < ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (activationChance < new Random().NextDouble())
                 return;
 
             NextAssessDebuffActivationTime = currentTime + AssessDebuffActivationInterval;
@@ -1253,7 +1253,7 @@ namespace ACE.Server.WorldObjects
             var defenseSkill = target.GetCreatureSkill(Skill.Deception);
 
             var avoidChance = 1.0f - SkillCheck.GetSkillChance(skill.Current, defenseSkill.Current);
-            if (avoidChance > ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (avoidChance > new Random().NextDouble())
             {
                 if (sourceAsPlayer != null)
                     sourceAsPlayer.Session.Network.EnqueueSend(new GameMessageSystemChat($"{target.Name}'s deception stops you from finding a vulnerability!", ChatMessageType.Magic));
@@ -1569,7 +1569,7 @@ namespace ACE.Server.WorldObjects
             if (overpowerChance <= 0)
                 return false;
 
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
 
             return rng < overpowerChance * 0.01f;
         }
@@ -1584,7 +1584,7 @@ namespace ACE.Server.WorldObjects
 
             //Console.WriteLine($"Overpower chance: {GetOverpowerChance_Method_B(attacker, defender)}");
 
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
 
             if (rng >= overpowerChance * 0.01f)
                 return false;
@@ -1594,7 +1594,7 @@ namespace ACE.Server.WorldObjects
 
             var resistChance = defender.OverpowerResist.Value;
 
-            rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            rng = new Random().NextDouble();
 
             return rng >= resistChance * 0.01f;
         }

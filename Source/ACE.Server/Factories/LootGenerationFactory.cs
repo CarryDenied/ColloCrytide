@@ -633,7 +633,7 @@ namespace ACE.Server.Factories
             // when the outer MundaneItemChance roll is factored in
 
             // loot quality mod?
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
 
             if (rng < 0.02f)
                 return CreateCoalescedMana(profile);
@@ -654,7 +654,7 @@ namespace ACE.Server.Factories
             // when the outer MundaneItemChance roll is factored in
 
             // loot quality mod?
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f * dropRateMod);
+            var rng = new Random().NextDouble() * dropRateMod;
 
             if (rng < 0.02f)
                 return CreateAetheria_New(profile);
@@ -881,7 +881,7 @@ namespace ACE.Server.Factories
             if (materialBase == null)
                 return GetDefaultMaterialType(wo);
 
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
             float probability = 0.0f;
             foreach (var m in materialBase)
             {
@@ -897,7 +897,7 @@ namespace ACE.Server.Factories
                     if (materialGroup == null)
                         return GetDefaultMaterialType(wo);
 
-                    var groupRng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                    var groupRng = new Random().NextDouble();
                     float groupProbability = 0.0f;
                     foreach (var g in materialGroup)
                     {
@@ -982,7 +982,7 @@ namespace ACE.Server.Factories
                         wo.PaletteTemplate = (int)cloSubPal.Key;
 
                         // Throw some shade, at random
-                        wo.Shade = ThreadSafeRandom.Next(0.0f, 1.0f);
+                        wo.Shade = new Random().NextDouble();
                     }
                 }
             }
@@ -1078,7 +1078,7 @@ namespace ACE.Server.Factories
                         wo.PaletteTemplate = (int)paletteTemplate;
 
                         // Throw some shade, at random
-                        wo.Shade = ThreadSafeRandom.Next(0.0f, 1.0f);
+                        wo.Shade = new Random().NextDouble();
 
                         // Some debug info...
                         // log.Info($"Color success for {wo.MaterialType}({(int)wo.MaterialType}) - {wo.WeenieClassId} - {wo.Name}. PaletteTemplate {paletteTemplate} applied.");
@@ -1767,7 +1767,7 @@ namespace ACE.Server.Factories
             {
                 // t8 had a 90% chance for 180
                 // loot quality mod?
-                var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var rng = new Random().NextDouble();
 
                 if (rng < 0.9f)
                     wieldLevelReq = 180;

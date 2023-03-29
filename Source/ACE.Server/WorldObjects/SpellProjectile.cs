@@ -330,7 +330,7 @@ namespace ACE.Server.WorldObjects
                             if (techniqueTrinket != null && techniqueTrinket.TacticAndTechniqueId == (int)TacticAndTechniqueType.Opportunist)
                             {
                                 var chance = 0.3f;
-                                if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+                                if (chance > new Random().NextDouble())
                                 {
                                     // Chance of inflicting self damage while using the Opportunist technique.
                                     var criticalSelf = false;
@@ -479,7 +479,7 @@ namespace ACE.Server.WorldObjects
                     var criticalDefenseMod = sourcePlayer != null ? 0.05f : 0.25f;
                     var criticalDefenseChance = targetPlayer.AugmentationCriticalDefense * criticalDefenseMod;
 
-                    if (criticalDefenseChance > ThreadSafeRandom.Next(0.0f, 1.0f))
+                    if (criticalDefenseChance > new Random().NextDouble())
                         critDefended = true;
                 }
 

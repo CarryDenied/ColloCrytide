@@ -1,3 +1,4 @@
+using System;
 using ACE.Common;
 using ACE.Server.Factories.Tables;
 using ACE.Server.WorldObjects;
@@ -77,7 +78,7 @@ namespace ACE.Server.Factories
             var baseRating = ThreadSafeRandom.Next(1, 10);
 
             var chance = 0.4f + tier * 0.02f;
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
             if (rng < chance)
                 baseRating += ThreadSafeRandom.Next(1, 10);
 

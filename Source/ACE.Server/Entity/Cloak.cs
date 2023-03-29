@@ -63,7 +63,7 @@ namespace ACE.Server.Entity
 
             var chance = Math.Min(damage_percent, maxProcRate);
 
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
 
             if (rng < chance)
             {

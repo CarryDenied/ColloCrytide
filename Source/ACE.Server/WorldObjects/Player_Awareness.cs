@@ -160,7 +160,7 @@ namespace ACE.Server.WorldObjects
                 return SneakingTestResult.Untrained;
 
             var chance = SkillCheck.GetSkillChance(sneakingSkill.Current, difficulty);
-            if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (chance > new Random().NextDouble())
             {
                 Proficiency.OnSuccessUse(this, sneakingSkill, difficulty);
                 return SneakingTestResult.Success;
@@ -188,7 +188,7 @@ namespace ACE.Server.WorldObjects
             }
 
             var chance = SkillCheck.GetSkillChance(awarenessSkill.Current, (uint)(wo.ResistAwareness ?? 0));
-            if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (chance > new Random().NextDouble())
             {
                 Proficiency.OnSuccessUse(this, awarenessSkill, (uint)(wo.ResistAwareness ?? 0));
                 return true;

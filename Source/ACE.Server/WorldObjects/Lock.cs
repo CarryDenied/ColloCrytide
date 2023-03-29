@@ -333,7 +333,7 @@ namespace ACE.Server.WorldObjects
             Debug.WriteLine($"{pickChance.FormatChance()} chance of UnlockSuccess");
 #endif
 
-            var dice = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var dice = new Random().NextDouble();
             if (dice >= pickChance)
                 return UnlockResults.PickLockFailed;
 

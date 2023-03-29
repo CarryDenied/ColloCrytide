@@ -1,3 +1,4 @@
+using System;
 using ACE.Common;
 using ACE.Database.Models.World;
 using ACE.Database;
@@ -18,7 +19,7 @@ namespace ACE.Server.Factories
             {
                 // According to wiki, Tier 7 has a chance for level 8 spell components or level 7 spell scrolls (as does Tier 8)
                 // No indication of weighting in either direction, so assuming a 50/50 split
-                var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var rng = new Random().NextDouble();
 
                 if (rng < 0.5f)
                 {

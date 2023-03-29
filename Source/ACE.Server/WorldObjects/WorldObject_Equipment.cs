@@ -133,7 +133,7 @@ namespace ACE.Server.WorldObjects
         {
             var wieldedTreasure = new List<WorldObject>();
 
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
             var probability = 0.0f;
             var rolled = false;
 

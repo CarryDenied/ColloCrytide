@@ -190,12 +190,12 @@ namespace ACE.Server.WorldObjects
 
                 if (CurrentLandblock.IsDungeon || (CurrentLandblock.HasDungeon && Location.Indoors))
                 {
-                    var trapRoll = ThreadSafeRandom.Next(0.0f, 1.0f);
+                    var trapRoll = new Random().NextDouble();
                     if (trapRoll < 0.05 + (0.15 * trapExtraChance))
                         DeployRandomTrap();
                 }
 
-                var chestRoll = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var chestRoll = new Random().NextDouble();
                 if (chestRoll < 0.015 + (0.015 * chestExtraChance))
                     DeployHiddenChest();
             }
@@ -218,7 +218,7 @@ namespace ACE.Server.WorldObjects
             DeployedObjects.RemoveAll(x => x.TryGetWorldObject() == null);
 
             var tierMod = 0;
-            if (Tier > 2 && ThreadSafeRandom.Next(0.0f, 1.0f) < 0.25)
+            if (Tier > 2 && new Random().NextDouble() < 0.25)
                 tierMod = 1;
 
             var tier = Math.Clamp((Tier ?? 1) + tierMod, 1, HiddenChests.Count);
@@ -234,7 +234,7 @@ namespace ACE.Server.WorldObjects
             hiddenChest.Tier = tier;
             hiddenChest.ResistAwareness = unmodTier * 65;
 
-            if(ThreadSafeRandom.Next(0.0f, 1.0f) < 0.5f)
+            if(new Random().NextDouble() < 0.5f)
                 hiddenChest.IsLocked = true;
 
             if (hiddenChest.EnterWorld())
@@ -386,7 +386,7 @@ namespace ACE.Server.WorldObjects
 
                 appearance.Nose = (uint)ThreadSafeRandom.Next(0, sex.NoseStripList.Count - 1);
 
-                appearance.SkinHue = ThreadSafeRandom.Next(0.0f, 1.0f);
+                appearance.SkinHue = new Random().NextDouble();
             }
             else
             {

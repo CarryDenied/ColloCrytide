@@ -490,7 +490,7 @@ namespace ACE.Server.Factories
             if (ConfigManager.Config.Server.WorldRuleset != Ruleset.Infiltration && wo.WeaponSkill != Skill.TwoHandedCombat && wo.WeaponSkill != Skill.MissileWeapons)
             {
                 // 10% chance to adjust to dual wielding
-                var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var rng = new Random().NextDouble();
 
                 if (rng < 0.1f)
                     return SpellId.CantripDualWieldAptitude1;
@@ -544,7 +544,7 @@ namespace ACE.Server.Factories
                 return SpellId.CANTRIPWARMAGICAPTITUDE1;
 
             // even split? retail was broken here
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
 
             if (rng < 0.5f)
                 return SpellId.CANTRIPWARMAGICAPTITUDE1;

@@ -4059,7 +4059,7 @@ namespace ACE.Server.Command.Handlers
             for (int i = 0; i < testRolls; i++)
             {
                 //var roll = ThreadSafeRandom.Next(0, 99);
-                var roll = (int)(Math.Round(ThreadSafeRandom.Next(0.0f, 1.0f), 2) * 100);
+                var roll = (int)(Math.Round(new Random().NextDouble(), 2) * 100);
 
                 if (valueDistribution.ContainsKey(roll))
                     valueDistribution[roll]++;
@@ -4082,7 +4082,7 @@ namespace ACE.Server.Command.Handlers
             for (int i = 0; i < testRolls; i++)
             {
                 //var roll = ThreadSafeRandom.Next(0, 99);
-                var roll = (int)(Math.Round(ThreadSafeRandom.Next(0.0f, 1.0f), 2) * 100);
+                var roll = (int)(Math.Round(new Random().NextDouble(), 2) * 100);
 
                 bool isStreak = roll == previousRoll;
 
@@ -4116,7 +4116,7 @@ namespace ACE.Server.Command.Handlers
             for (int i = 0; i < testRolls; i++)
             {
                 //var roll = ThreadSafeRandom.Next(0, 99);
-                var roll = (int)(Math.Round(ThreadSafeRandom.Next(0.0f, 1.0f), 2) * 100);
+                var roll = (int)(Math.Round(new Random().NextDouble(), 2) * 100);
 
                 bool isClustered = Math.Abs(roll - previousRoll) < 10;
                 if (isClustered)

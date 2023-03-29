@@ -1,3 +1,4 @@
+using System;
 using ACE.Common;
 
 namespace ACE.Server.Factories.Entity
@@ -30,7 +31,7 @@ namespace ACE.Server.Factories.Entity
         public static float? Roll(int tier)
         {
             // preliminary roll: 10% chance
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
             if (rng >= 0.1f) return null;
 
             if (tier < 7)

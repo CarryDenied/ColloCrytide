@@ -630,7 +630,7 @@ namespace ACE.Server.WorldObjects
                             var chance1 = SkillCheck.GetSkillChance(appraisalSkill.Current, diff1);
                             var chance2 = SkillCheck.GetSkillChance(appraisalSkill.Current, diff2);
                             var chance3 = SkillCheck.GetSkillChance(appraisalSkill.Current, diff3);
-                            var roll = ThreadSafeRandom.Next(0.0f, 1.0f);
+                            var roll = new Random().NextDouble();
 
                             if (chance3 > roll)
                             {

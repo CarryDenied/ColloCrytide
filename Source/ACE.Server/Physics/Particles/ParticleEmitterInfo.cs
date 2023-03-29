@@ -188,7 +188,7 @@ namespace ACE.Server.Physics
 
         public Vector3 GetRandomA()
         {
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
             var magnitude = (MaxA - MinA) * rng + MinA;
 
             return A * (float)magnitude;
@@ -196,7 +196,7 @@ namespace ACE.Server.Physics
 
         public Vector3 GetRandomB()
         {
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
             var magnitude = (MaxB - MinB) * rng + MinB;
 
             return B * (float)magnitude;
@@ -204,7 +204,7 @@ namespace ACE.Server.Physics
 
         public Vector3 GetRandomC()
         {
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
             var magnitude = (MaxC - MinC) * rng + MinC;
 
             return C * (float)magnitude;

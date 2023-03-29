@@ -1717,7 +1717,7 @@ namespace ACE.Server.Command.Handlers
 
                         if (maxCantripLevel > 3)
                         {
-                            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                            var rng = new Random().NextDouble();
                             if (rng < 0.9f)
                                 wieldLevel = 180;
                         }

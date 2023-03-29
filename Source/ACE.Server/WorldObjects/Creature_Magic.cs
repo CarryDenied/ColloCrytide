@@ -71,14 +71,14 @@ namespace ACE.Server.WorldObjects
                 // Dropping diff by half as Specced ManaC is only 48 with starter Aug so 50 at level 1 means no bonus
                 //   easiest change without having to create two different formulas to try to emulate retail
                 var successChance = SkillCheck.GetSkillChance(manaConv, difficulty / 2);
-                var roll = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var roll = new Random().NextDouble();
 
                 // Luck lowers the roll value to give better outcome
                 // e.g. successChance = 0.83 & roll = 0.71 would still provide some savings.
                 //   but a luck roll of 0.19 will lower that 0.71 to 0.13 so the caster would
                 //   receive a 60% reduction in mana cost.  without the luck roll, 12%
                 //   so players will always have a level of "luck" in manacost if they make skill checks
-                var luck = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var luck = new Random().NextDouble();
 
                 if (roll < successChance)
                 {
@@ -93,7 +93,7 @@ namespace ACE.Server.WorldObjects
                 if (manaCost > 1)
                 {
                     successChance = SkillCheck.GetSkillChance(manaConv, difficulty);
-                    roll = ThreadSafeRandom.Next(0.0f, 1.0f);
+                    roll = new Random().NextDouble();
 
                     if (roll < successChance)
                         manaCost = (uint)Math.Round(manaCost * (1.0f - (successChance - (roll * luck))));
@@ -116,7 +116,7 @@ namespace ACE.Server.WorldObjects
                     return manaCost;
 
                 var successChance = SkillCheck.GetSkillChance(manaConv, difficulty);
-                var roll = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var roll = new Random().NextDouble();
 
                 if (roll < successChance)
                 {

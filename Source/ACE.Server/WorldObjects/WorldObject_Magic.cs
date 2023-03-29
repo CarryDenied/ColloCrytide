@@ -106,7 +106,7 @@ namespace ACE.Server.WorldObjects
         {
             // uses regular 0.03 factor, and not magic casting 0.07 factor
             var chance = 1.0 - (SkillCheck.GetSkillChance((int)casterMagicSkill, (int)targetMagicDefenseSkill) * chanceMod);
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
 
             if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
                 chance = Math.Min(chance, 0.95f + (magicDefenseCapBonus * 0.01f));

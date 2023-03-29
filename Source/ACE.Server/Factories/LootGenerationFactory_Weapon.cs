@@ -4,6 +4,7 @@ using ACE.Entity.Enum;
 using ACE.Entity.Enum.Properties;
 using ACE.Server.Factories.Tables;
 using ACE.Server.WorldObjects;
+using System;
 
 namespace ACE.Server.Factories
 {
@@ -55,7 +56,7 @@ namespace ACE.Server.Factories
 
             var chance = ExtraMutationEffects.GetCrushingBlowChanceForTier(treasureDeath.Tier);
             chance = ApplyQualityModToExtraMutationChance(chance, treasureDeath.LootQualityMod);
-            if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (chance > new Random().NextDouble())
             {
                 float amount;
                 if (wo.IsCaster)
@@ -78,7 +79,7 @@ namespace ACE.Server.Factories
 
             var chance = ExtraMutationEffects.GetBitingStrikeChanceForTier(treasureDeath.Tier);
             chance = ApplyQualityModToExtraMutationChance(chance, treasureDeath.LootQualityMod);
-            if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (chance > new Random().NextDouble())
             {
                 float amount;
                 if (wo.IsCaster)
@@ -100,7 +101,7 @@ namespace ACE.Server.Factories
 
             var chance = SlayerTypeChance.GetSlayerChanceForTier(treasureDeath.Tier);
             chance = ApplyQualityModToExtraMutationChance(chance, treasureDeath.LootQualityMod);
-            if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (chance > new Random().NextDouble())
             {
                 wo.SlayerCreatureType = SlayerTypeChance.Roll(treasureDeath);
                 wo.SlayerDamageBonus = 1.5f;
@@ -117,7 +118,7 @@ namespace ACE.Server.Factories
 
             var chance = ExtraMutationEffects.GetHollowChanceForTier(treasureDeath.Tier);
             chance = ApplyQualityModToExtraMutationChance(chance, treasureDeath.LootQualityMod);
-            if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (chance > new Random().NextDouble())
             {
                 wo.IgnoreMagicArmor = true;
                 wo.IgnoreMagicResist = true;
@@ -136,7 +137,7 @@ namespace ACE.Server.Factories
 
             var chance = ExtraMutationEffects.GetArmorCleavingChanceForTier(treasureDeath.Tier);
             chance = ApplyQualityModToExtraMutationChance(chance, treasureDeath.LootQualityMod);
-            if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (chance > new Random().NextDouble())
             {
                 // 0.0 = ignore 100% of all armor.
                 wo.IgnoreArmor = 0.75f; // Equivalent of Imperil III for 300 AL armor.
@@ -156,7 +157,7 @@ namespace ACE.Server.Factories
 
             var chance = ExtraMutationEffects.GetShieldCleavingChanceForTier(treasureDeath.Tier);
             chance = ApplyQualityModToExtraMutationChance(chance, treasureDeath.LootQualityMod);
-            if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (chance > new Random().NextDouble())
             {
                 // 1.0 = ignore 100% of the armor from shields.
                 wo.IgnoreShield = 0.50f; // Equivalent of Brittlemail V for 300 AL shields.
@@ -174,7 +175,7 @@ namespace ACE.Server.Factories
 
             var chance = ExtraMutationEffects.GetAbsorbMagicChanceForTier(treasureDeath.Tier);
             chance = ApplyQualityModToExtraMutationChance(chance, treasureDeath.LootQualityMod);
-            if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (chance > new Random().NextDouble())
             {
                 wo.AbsorbMagicDamage = 0.25f;
                 wo.Translucency = 0.7f;
@@ -192,7 +193,7 @@ namespace ACE.Server.Factories
 
             var chance = ExtraMutationEffects.GetResistanceCleavingChanceForTier(treasureDeath.Tier);
             chance = ApplyQualityModToExtraMutationChance(chance, treasureDeath.LootQualityMod);
-            if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (chance > new Random().NextDouble())
             {
                 var damageType = wo.W_DamageType;
                 if (damageType == DamageType.Undef)

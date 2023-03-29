@@ -235,7 +235,7 @@ namespace ACE.Server.WorldObjects
                     var pickChance = SkillCheck.GetSkillChance(effectiveLockpickSkill, difficulty);
 
                     bool success = false;
-                    var chance = ThreadSafeRandom.Next(0.0f, 1.0f);
+                    var chance = new Random().NextDouble();
                     if (chance < pickChance)
                     {
                         success = true;

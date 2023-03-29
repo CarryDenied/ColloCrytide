@@ -84,7 +84,7 @@ namespace ACE.Server.WorldObjects
             {
                 var probability = spell.Value > 2.0f ? spell.Value - 2.0f : spell.Value / 100.0f;
 
-                var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var rng = new Random().NextDouble();
 
                 if (rng < probability)
                 {
@@ -118,7 +118,7 @@ namespace ACE.Server.WorldObjects
             {
                 var probability = spell.Value > 2.0f ? spell.Value - 2.0f : spell.Value / 100.0f;
 
-                var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var rng = new Random().NextDouble();
 
                 if (rng < probability)
                 {

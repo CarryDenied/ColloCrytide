@@ -766,7 +766,7 @@ namespace ACE.Server.Factories
             if (wo.Biota.PropertiesSpellBook == null && (wo.SpellDID ?? 0) == 0 && (wo.ProcSpell ?? 0) == 0)
                 return false;
 
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
             if (rng < 0.05)
             {
                 if(roll.Heritage == TreasureHeritageGroup.Invalid)
@@ -825,7 +825,7 @@ namespace ACE.Server.Factories
             }
             else if (roll.IsArmor)
             {
-                var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var rng = new Random().NextDouble();
 
                 if (rng < 0.5f)
                 {
@@ -855,7 +855,7 @@ namespace ACE.Server.Factories
             }
             else if (roll.IsArmor && !roll.IsClothArmor)
             {
-                var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var rng = new Random().NextDouble();
 
                 return rng < 0.55f;
             }

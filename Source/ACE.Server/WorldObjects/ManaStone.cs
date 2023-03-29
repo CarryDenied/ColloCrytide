@@ -314,7 +314,7 @@ namespace ACE.Server.WorldObjects
             if (DestroyChance == 0)
                 return false;
 
-            var dice = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var dice = new Random().NextDouble();
 
             if (dice < DestroyChance)
             {

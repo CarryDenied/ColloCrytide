@@ -148,7 +148,7 @@ namespace ACE.Server.Entity
                     var diff = 25 + (uint)Math.Sqrt(Math.Min(trueValue, 250000));
                     var chance = SkillCheck.GetSkillChance(appraisalSkill.Current, diff);
 
-                    if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+                    if (chance > new Random().NextDouble())
                     {
                         Proficiency.OnSuccessUse(player, appraisalSkill, diff);
 
@@ -212,7 +212,7 @@ namespace ACE.Server.Entity
                 var diff = 25 + (uint)Math.Sqrt(Math.Min(trueValue, 250000));
                 var chance = SkillCheck.GetSkillChance(appraisalSkill.Current, diff);
 
-                if (chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+                if (chance > new Random().NextDouble())
                 {
                     Proficiency.OnSuccessUse(player, appraisalSkill, diff);
 

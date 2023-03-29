@@ -170,7 +170,7 @@ namespace ACE.Server.Entity
                 var burnRate = baseRate * spellComponent.CDM * skillMod * componentBurnChanceMod;
 
                 // TODO: curve?
-                var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var rng = new Random().NextDouble();
                 if (rng < burnRate)
                     consumed.Add(component);
             }

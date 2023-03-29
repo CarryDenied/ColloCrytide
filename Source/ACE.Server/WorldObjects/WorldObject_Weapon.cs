@@ -1053,7 +1053,7 @@ namespace ACE.Server.WorldObjects
             if (Aetheria.IsAetheria(WeenieClassId) && creatureAttacker != null)
                 chance = Aetheria.CalcProcRate(this, creatureAttacker);
 
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
             if (rng >= chance)
                 return;
 
@@ -1191,7 +1191,7 @@ namespace ACE.Server.WorldObjects
             if (playerAttacker != null)
                 chance += playerAttacker.ScaleWithPowerAccuracyBar((float)chance);
 
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
             if (rng >= chance)
                 return;
 

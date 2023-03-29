@@ -207,7 +207,7 @@ namespace ACE.Server.Entity
             if (!Overpower)
             {
                 EvasionChance = GetEvadeChance(attacker, defender);
-                if (attacker != defender && EvasionChance > ThreadSafeRandom.Next(0.0f, 1.0f))
+                if (attacker != defender && EvasionChance > new Random().NextDouble())
                 {
                     Evaded = true;
                     return 0.0f;
@@ -267,7 +267,7 @@ namespace ACE.Server.Entity
                         CreatureSkill defenderMeleeDef = defender.GetCreatureSkill(Skill.MeleeDefense);
 
                         var activationChance = SkillCheck.GetSkillChance(attackerMeleeDef.Current, (uint)(defenderMeleeDef.Current * 0.75f));
-                        if (activationChance > ThreadSafeRandom.Next(0.0f, 1.0f))
+                        if (activationChance > new Random().NextDouble())
                             RecklessnessMod = 1.20f; // Extra damage dealt while attacking with the Reckless technique.
                     }
                 }
@@ -314,7 +314,7 @@ namespace ACE.Server.Entity
 
                         var currentTime = Time.GetUnixTime();
                         var chance = 0.2f + playerAttacker.ScaleWithPowerAccuracyBar(0.2f);
-                        if (attacker != defender && playerAttacker.NextTechniqueNegativeActivationTime <= currentTime && chance > ThreadSafeRandom.Next(0.0f, 1.0f))
+                        if (attacker != defender && playerAttacker.NextTechniqueNegativeActivationTime <= currentTime && chance > new Random().NextDouble())
                         {
                             // Chance of inflicting self damage while using the Opportunist technique.
                             playerAttacker.NextTechniqueNegativeActivationTime = currentTime + Player.TechniqueNegativeActivationInterval;
@@ -337,14 +337,14 @@ namespace ACE.Server.Entity
             if (playerDefender != null && (playerDefender.IsLoggingOut || playerDefender.PKLogout))
                 CriticalChance = 1.0f;
 
-            if (CriticalChance > ThreadSafeRandom.Next(0.0f, 1.0f))
+            if (CriticalChance > new Random().NextDouble())
             {
                 if (playerDefender != null && playerDefender.AugmentationCriticalDefense > 0)
                 {
                     var criticalDefenseMod = playerAttacker != null ? 0.05f : 0.25f;
                     var criticalDefenseChance = playerDefender.AugmentationCriticalDefense * criticalDefenseMod;
 
-                    if (criticalDefenseChance > ThreadSafeRandom.Next(0.0f, 1.0f))
+                    if (criticalDefenseChance > new Random().NextDouble())
                         CriticalDefended = true;
                 }
 

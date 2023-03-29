@@ -31,7 +31,7 @@ namespace ACE.Server.Factories.Tables
                 return false;
 
             // quality mod?
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
 
             return rng < TierChances[tier - 1];
         }

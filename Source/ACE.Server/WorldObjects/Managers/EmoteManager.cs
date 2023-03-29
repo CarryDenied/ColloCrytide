@@ -1577,7 +1577,7 @@ namespace ACE.Server.WorldObjects.Managers
 
             if (useRNG)
             {
-                var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                var rng = new Random().NextDouble();
                 emoteSet = emoteSet.Where(e => e.Probability > rng).OrderBy(e => e.Probability);
                 //emoteSet = emoteSet.Where(e => e.Probability >= rng);
             }

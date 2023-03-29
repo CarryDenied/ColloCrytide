@@ -250,7 +250,7 @@ namespace ACE.Server.WorldObjects
             difficulty = (int)Math.Round((vital.MaxValue - vital.Current) * 2 * combatMod);
 
             var skillCheck = SkillCheck.GetSkillChance(effectiveSkill, difficulty);
-            return skillCheck > ThreadSafeRandom.Next(0.0f, 1.0f);
+            return skillCheck > new Random().NextDouble();
         }
 
         /// <summary>
@@ -274,7 +274,7 @@ namespace ACE.Server.WorldObjects
             healAmount *= ratingMod;
 
             // chance for critical healing
-            criticalHeal = ThreadSafeRandom.Next(0.0f, 1.0f) < 0.1f;
+            criticalHeal = new Random().NextDouble() < 0.1f;
             if (criticalHeal) healAmount *= 2;
 
             // cap to missing vital

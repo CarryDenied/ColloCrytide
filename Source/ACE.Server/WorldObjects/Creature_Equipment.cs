@@ -659,7 +659,7 @@ namespace ACE.Server.WorldObjects
             if (trophy_drop_rate != 1.0)
                 return CreateListSelect(createList, (float)trophy_drop_rate);
 
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+            var rng = new Random().NextDouble();
             var totalProbability = 0.0f;
             var rngSelected = false;
 
@@ -678,7 +678,7 @@ namespace ACE.Server.WorldObjects
                     if (totalProbability >= 1.0f)
                     {
                         totalProbability = 0.0f;
-                        rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                        rng = new Random().NextDouble();
                         rngSelected = false;
                     }
 
@@ -702,8 +702,8 @@ namespace ACE.Server.WorldObjects
         {
             var createList = new CreateList(_createList);
             CreateListSetModifier modifier = null;
-
-            var rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                
+            var rng = new Random().NextDouble();
             var totalProbability = 0.0f;
             var rngSelected = false;
 
@@ -724,7 +724,7 @@ namespace ACE.Server.WorldObjects
                     if (totalProbability == 0.0f || totalProbability >= 1.0f)
                     {
                         totalProbability = 0.0f;
-                        rng = ThreadSafeRandom.Next(0.0f, 1.0f);
+                        rng = new Random().NextDouble();
                         rngSelected = false;
 
                         modifier = createList.GetSetModifier(i, dropRateMod);
