@@ -338,19 +338,28 @@ namespace ACE.Server.WorldObjects
         /// <summary>
         /// Returns the critical chance for the caster weapon
         /// </summary>
-        public static float GetWeaponMagicCritFrequency(WorldObject weapon, Creature wielder, CreatureSkill skill, Creature target)
+        public static float GetWeaponMagicCritFrequency(WorldObject weapon, Creature wielder, CreatureSkill skill, Creature target, bool isPvP)
         {
             // TODO : merge with above function
 
             if (weapon == null)
                 return defaultMagicCritFrequency;
 
-            var critRate = (float)(weapon.GetProperty(PropertyFloat.CriticalFrequency) ?? defaultMagicCritFrequency);
+            float critRate;
+            float pvpDefaultMagicCritRate = .1f;
+            if (isPvP && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+            {
+                critRate = (float)(weapon.GetProperty(PropertyFloat.CriticalFrequency) ?? pvpDefaultMagicCritRate);
+                if (critRate > pvpDefaultMagicCritRate)
+                    critRate = .15f;
+            }
+            else
+                critRate = (float)(weapon.GetProperty(PropertyFloat.CriticalFrequency) ?? defaultMagicCritFrequency);
+
+
 
             if (weapon.HasImbuedEffect(ImbuedEffectType.CriticalStrike))
             {
-                var isPvP = wielder is Player && target is Player;
-
                 var criticalStrikeMod = GetCriticalStrikeMod(skill, isPvP);
 
                 critRate = Math.Max(critRate, criticalStrikeMod);
@@ -461,13 +470,13 @@ namespace ACE.Server.WorldObjects
 
                     if (playerAttacker != null && playerDefender != null)
                     {
-                        return 1.1f;
-                        //        if (weapon.ItemType == ItemType.Caster)
-                        //            return 1.2f;
-                        //        else if (weapon.ItemType == ItemType.MissileWeapon)
-                        //            return 2.9f;
-                        //        else if (weapon.ItemType == ItemType.MeleeWeapon)
-                        //            return 3.4f;
+                            if (weapon.ItemType == ItemType.Caster)
+                                return 1.3f;
+                            //else if (weapon.ItemType == ItemType.MissileWeapon)
+                            //    return 2.9f;
+                            //else if (weapon.ItemType == ItemType.MeleeWeapon)
+                            else
+                                return 1.1f;
                     }
                 }
                 return (float)weapon.SlayerDamageBonus;
@@ -678,8 +687,10 @@ namespace ACE.Server.WorldObjects
 
             if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
             {
-                if (!isPvP || skillType == ImbuedSkillType.Magic)
+                if (!isPvP)
                     return 0.2f;
+                else if (skillType == ImbuedSkillType.Magic)
+                    return 0.17f;
                 else
                     return 0.18f;
             }
@@ -761,9 +772,14 @@ namespace ACE.Server.WorldObjects
 
             if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
             {
-                if (GetImbuedSkillType(skill) == ImbuedSkillType.Magic)
-                    return 2.0f;
-                else if (isPvP)
+                if (isPvP)
+                {
+                    if (GetImbuedSkillType(skill) == ImbuedSkillType.Magic)
+                        return 1.7f;
+                    else
+                        return 2.0f;
+                }
+                else if (GetImbuedSkillType(skill) == ImbuedSkillType.Magic)
                     return 2.0f;
                 else
                     return 2.5f;

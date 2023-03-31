@@ -463,8 +463,10 @@ namespace ACE.Server.WorldObjects
                     techniqueId = (TacticAndTechniqueType)techniqueTrinket.TacticAndTechniqueId;
             }
 
+            bool isPVP = sourcePlayer != null && targetPlayer != null;
+
             // critical hit
-            var criticalChance = GetWeaponMagicCritFrequency(weapon, sourceCreature, attackSkill, target);
+            var criticalChance = GetWeaponMagicCritFrequency(weapon, sourceCreature, attackSkill, target, isPVP);
 
             if (sourcePlayer != null && source != target)
             {
@@ -489,7 +491,7 @@ namespace ACE.Server.WorldObjects
 
             var absorbMod = GetAbsorbMod(this, target);
 
-            bool isPVP = sourcePlayer != null && targetPlayer != null;
+            
 
             //http://acpedia.org/wiki/Announcements_-_2014/01_-_Forces_of_Nature - Aegis is 72% effective in PvP
             if (isPVP && (target.CombatMode == CombatMode.Melee || target.CombatMode == CombatMode.Missile) && Common.ConfigManager.Config.Server.WorldRuleset != Common.Ruleset.CustomDM)
@@ -574,15 +576,31 @@ namespace ACE.Server.WorldObjects
                 if (sourcePlayer != null)
                 {
                     var magicSkill = sourcePlayer.GetCreatureSkill(Spell.School).Current;
-
-                    if (magicSkill > Spell.Power)
+                    if (isPVP && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && sourcePlayer.Level >= 70)
                     {
-                        var percentageBonus = (magicSkill - Spell.Power) / 1000.0f;
+                        //These damage mods are calculated to be a 32% chance of killing a max health 100 base endurance guy with 2 bolts + a streak
+                        //and a 32% chance of not killing a 10 base endurance guy with 2 bolts and a streak.
+                        //I've tried to scale it based on the war skill and what I think the health is of players that level. It won't be exact, but it should be closish.
+                        //I've also punted on lower level damage. The math changes because wars cast so much faster at low levels. I'm not gonna pretend to know
+                        //what the numbers should be there. I picked level 70 to start adding a damage bonus because that's roughly when it should be possible to start casting 7s
+                        //(if you have majors)
+                        float skillToCast7s = 360f; //to cast 50% of the time in combat
+                        float maxWarSkill = 441f;
+                        float lowEndDamageMod = 1.021f;
+                        float maxSkillDamageMod = 1.412f;
+                        skillBonus = (maxSkillDamageMod - lowEndDamageMod) * (magicSkill - skillToCast7s) / (maxWarSkill - skillToCast7s) + lowEndDamageMod;
+                        skillBonus = Math.Min(skillBonus, 1);
+                    } else { 
+                        if (magicSkill > Spell.Power)
+                        {
+                            var percentageBonus = (magicSkill - Spell.Power) / 1000.0f;
 
-                        skillBonus = Spell.MinDamage * percentageBonus;
-                    }
+                            skillBonus = Spell.MinDamage * percentageBonus;
+                        }
+                    }           
                 }
                 baseDamage = ThreadSafeRandom.Next(Spell.MinDamage, Spell.MaxDamage);
+
 
                 if (Common.ConfigManager.Config.Server.WorldRuleset <= Common.Ruleset.Infiltration)
                 {
@@ -609,16 +627,18 @@ namespace ACE.Server.WorldObjects
                     resistanceMod *= (float)PropertyManager.GetDouble("void_pvp_modifier").Item;
                 }
 
-            
-                finalDamage = baseDamage + critDamageBonus + skillBonus;
 
-                finalDamage *= elementalDamageMod * slayerMod * resistanceMod * absorbMod;
-                if (isPVP)
+
+                if (isPVP && Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && sourcePlayer.Level >= 70)
                 {
-                    if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
-                    {
-                        finalDamage += (int)((float)finalDamage * .4);
-                    }
+                    finalDamage = baseDamage + critDamageBonus;
+
+                    finalDamage *= elementalDamageMod * slayerMod * resistanceMod * absorbMod * skillBonus;
+                } else
+                {
+                    finalDamage = baseDamage + critDamageBonus + skillBonus;
+
+                    finalDamage *= elementalDamageMod * slayerMod * resistanceMod * absorbMod;
                 }
             }
 

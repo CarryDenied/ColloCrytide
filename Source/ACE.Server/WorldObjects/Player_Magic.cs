@@ -974,7 +974,7 @@ namespace ACE.Server.WorldObjects
                                     var rng = new Random().NextDouble();
                                     var procRate = amulet.LeyLineTriggerChance;
                                     if (isPvP && spell.IsHarmful)                                
-                                        procRate = .03; //proc spells are super op.
+                                        procRate = 0.01; //proc spells are super op.
                                     if (procRate > rng)
                                     {
                                         amulet.NextLeyLineTriggerTime = currentTime + LeyLineAmulet.LeyLineTriggerInterval;
