@@ -582,8 +582,9 @@ namespace ACE.Server.WorldObjects
                     }
                 }
 
+                chance = Math.Clamp(chance, 0.0, 1.0);
                 var rng = new Random().NextDouble();
-                if (chance > rng)
+                if (rng <= chance)
                     castingPreCheckStatus = CastingPreCheckStatus.Success;
             }
 

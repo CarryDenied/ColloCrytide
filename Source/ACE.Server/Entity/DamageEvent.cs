@@ -12,6 +12,8 @@ using ACE.Server.Managers;
 using ACE.Server.Network.GameMessages.Messages;
 using ACE.Server.WorldObjects;
 using ACE.Server.WorldObjects.Entity;
+using ACE.DatLoader.Entity;
+using SkillFormula = ACE.Server.WorldObjects.SkillFormula;
 
 namespace ACE.Server.Entity
 {
@@ -369,18 +371,19 @@ namespace ACE.Server.Entity
                 }
             }
 
-            // armor rending and cleaving
-            var armorRendingMod = 1.0f;
-            if (Weapon != null && Weapon.HasImbuedEffect(ImbuedEffectType.ArmorRending))
-                armorRendingMod = WorldObject.GetArmorRendingMod(attackSkill, pkBattle);
+            // Get base armor 
+            bool ignoreMagicArmor = (Weapon?.IgnoreMagicArmor ?? false) || attacker.IgnoreMagicArmor;
+            bool ignoreMagicResist = (Weapon?.IgnoreMagicResist ?? false) || attacker.IgnoreMagicResist;
+            bool weaponIgnoreArmor = Weapon.HasImbuedEffect(ImbuedEffectType.IgnoreAllArmor);
+            bool attackerIgnoreArmor = attacker.HasImbuedEffect(ImbuedEffectType.IgnoreAllArmor);
+            bool ignoreAllArmor = weaponIgnoreArmor || attackerIgnoreArmor;
 
-            var armorCleavingMod = attacker.GetArmorCleavingMod(Weapon);
+            // Get LifeArmor - can be pos or neg
+            int lifeArmor = 0;
+            if(!ignoreMagicResist)
+                lifeArmor = defender.EnchantmentManager.GetBodyArmorMod();
 
-            var ignoreArmorMod = Math.Min(armorRendingMod, armorCleavingMod);
-
-            //if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && pkBattle)
-            //    ignoreArmorMod *= 0.7f; // Armor is reduced during PvP.
-
+            float armorValue = 0;
             // get body part / armor pieces / armor modifier
             if (playerDefender != null)
             {
@@ -388,10 +391,8 @@ namespace ACE.Server.Entity
                 GetBodyPart(AttackHeight);
 
                 // get player armor pieces
-                Armor = attacker.GetArmorLayers(playerDefender, BodyPart);
-
-                // get armor modifiers
-                ArmorMod = attacker.GetArmorMod(playerDefender, DamageType, Armor, Weapon, ignoreArmorMod);
+                Armor = defender.GetArmorLayers(playerDefender, BodyPart);
+                armorValue = defender.GetArmorLevel(playerDefender, DamageType, Armor, Weapon, ignoreMagicArmor);
             }
             else
             {
@@ -404,13 +405,64 @@ namespace ACE.Server.Entity
                     return 0.0f;
 
                 Armor = CreaturePart.GetArmorLayers(PropertiesBodyPart.Key);
-
-                // get target armor
-                ArmorMod = CreaturePart.GetArmorMod(DamageType, Armor, Attacker, Weapon, ignoreArmorMod);
+                armorValue = CreaturePart.GetEffectiveArmorLevel(DamageType, PropertiesBodyPart.Value.BaseArmor);
             }
 
-            if (Weapon != null && Weapon.HasImbuedEffect(ImbuedEffectType.IgnoreAllArmor))
-                ArmorMod = 1.0f;
+            armorValue = defender.GetSkillModifiedArmorLevel((float)armorValue);
+
+            if (Common.ConfigManager.Config.Server.WorldRuleset != Common.Ruleset.CustomDM)
+                armorValue += lifeArmor;
+            else
+            {
+                if (defender is Player player)
+                {
+                    if (lifeArmor > armorValue)
+                        armorValue =
+                            lifeArmor; // Body armor doesn't stack with equipment armor, use whichever is highest.
+
+                    if (!ignoreMagicResist)
+                        armorValue +=
+                            defender.EnchantmentManager
+                                .GetBodyArmorMod(
+                                    false); // Take into account armor debuffs now, but only if weapon isn't hollow.
+                }
+                else
+                {
+                    armorValue += lifeArmor;
+                }
+            }
+
+            // armor rending and cleaving
+            var armorRendingMod = 1.0f;
+            if (Weapon != null && Weapon.HasImbuedEffect(ImbuedEffectType.ArmorRending))
+                armorRendingMod = WorldObject.GetArmorRendingMod(attackSkill, pkBattle);
+
+            var armorCleavingMod = attacker.GetArmorCleavingMod(Weapon);
+
+            var armorCleaveRend = Math.Min(armorRendingMod, armorCleavingMod);
+
+            if (armorCleaveRend > 0)
+                armorValue = (int)(armorValue * armorCleaveRend + 0.5);
+
+            if (defender is Player isPlayer)
+            {
+                var shieldValue = 0;
+                var shield = defender.GetEquippedShield();
+                if (shield != null)
+                {
+                    shieldValue += defender.GetShieldValue(attacker, DamageType, Weapon, shield, ignoreMagicArmor);
+                    var ignoreShieldMod = attacker.GetIgnoreShieldMod(Weapon);
+                    shieldValue = (int) (shieldValue * ignoreShieldMod + 0.5);
+                }
+
+                armorValue += shieldValue;
+            }
+
+            if (ignoreAllArmor)
+                armorValue = 0;
+
+            
+
 
             // get resistance modifiers
             WeaponResistanceMod = WorldObject.GetWeaponResistanceModifier(Weapon, attacker, attackSkill, DamageType, pkBattle);
@@ -442,11 +494,10 @@ namespace ACE.Server.Entity
                 DamageResistanceRatingMod = Creature.AdditiveCombine(DamageResistanceRatingMod, PkDamageResistanceMod);
             }
 
-            // get shield modifier
-            ShieldMod = defender.GetShieldMod(attacker, DamageType, Weapon);
-
+            ArmorMod = SkillFormula.CalcArmorMod(armorValue);
+            
             // calculate final output damage
-            Damage = DamageBeforeMitigation * ArmorMod * ShieldMod * ResistanceMod * DamageResistanceRatingMod;
+            Damage = DamageBeforeMitigation * ArmorMod * ResistanceMod * DamageResistanceRatingMod;
 
             DamageMitigated = DamageBeforeMitigation - Damage;
 

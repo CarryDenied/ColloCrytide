@@ -429,6 +429,43 @@ namespace ACE.Server.WorldObjects
             return equipped;
         }
 
+        public int GetArmorLevel(Creature defender, DamageType damageType, List<WorldObject> armors, WorldObject weapon, bool ignoreMagicArmor)
+        {
+            var effectiveAL = 0;
+
+            foreach (var armor in armors)
+                //effectiveAL += defender.GetArmorMod(armor, damageType, ignoreMagicArmor);
+                effectiveAL += defender.GetBaseArmorLevels(armor, damageType, ignoreMagicArmor);
+
+            return effectiveAL;
+        }
+
+        private int GetBaseArmorLevels(WorldObject armor, DamageType damageType, bool ignoreMagicArmor)
+        {
+            var baseArmor = armor.GetProperty(PropertyInt.ArmorLevel) ?? 0;
+            var resistance = GetResistance(armor, damageType);
+
+            int buffedArmor = 0;
+            // armor level additives
+            if(!ignoreMagicArmor)
+                buffedArmor = armor.EnchantmentManager.GetArmorMod();
+
+            float buffedResist = 0.0f;
+            if (!ignoreMagicArmor)
+                buffedResist = armor.EnchantmentManager.GetArmorModVsType(damageType);
+
+            // Console.WriteLine("Impen: " + armorMod);
+            var effectiveAL = baseArmor + buffedArmor;
+
+            // Console.WriteLine("Bane: " + armorBane);
+            var effectiveRL = (float)(resistance + buffedResist);
+
+            // resistance clamp
+            effectiveRL = Math.Clamp(effectiveRL, -2.0f, 2.0f);
+
+            return (int)(effectiveAL * effectiveRL);
+        }
+
         /// <summary>
         /// Returns the percent of damage absorbed by layered armor + clothing
         /// </summary>
@@ -441,7 +478,8 @@ namespace ACE.Server.WorldObjects
             var effectiveAL = 0.0f;
 
             foreach (var armor in armors)
-                effectiveAL += defender.GetArmorMod(armor, damageType, ignoreMagicArmor);
+                //effectiveAL += defender.GetArmorMod(armor, damageType, ignoreMagicArmor);
+                effectiveAL += defender.GetBaseArmorLevels(armor, damageType, ignoreMagicArmor);
 
             // life spells
             // additive: armor/imperil
@@ -454,13 +492,6 @@ namespace ACE.Server.WorldObjects
                 if (ignoreMagicResist)
                     bodyArmorMod = IgnoreMagicResistScaled(bodyArmorMod);
             }
-
-            // handle armor rending mod here?
-            //if (bodyArmorMod > 0)
-            //bodyArmorMod *= armorRendingMod;
-
-            //Console.WriteLine("==");
-            //Console.WriteLine("Armor Self: " + bodyArmorMod);
 
             if (Common.ConfigManager.Config.Server.WorldRuleset != Common.Ruleset.CustomDM)
                 effectiveAL += bodyArmorMod;
@@ -484,6 +515,8 @@ namespace ACE.Server.WorldObjects
 
             return armorMod;
         }
+
+
 
         public float IgnoreMagicArmorScaled(float enchantments)
         {

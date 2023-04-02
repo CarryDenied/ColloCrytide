@@ -33,6 +33,12 @@ namespace ACE.Server.WorldObjects
             return SkillFormula.CalcArmorMod(effectiveArmorVsType);
         }
 
+        public int GetEffectiveArmorLevel(DamageType damageType, int baseArmor)
+        {
+            var armorVsType = (int)(Biota.Value.BaseArmor * (float)Creature.GetArmorVsType(damageType) + 0.5);
+            return armorVsType;
+        }
+
         public float GetEffectiveArmorVsType(DamageType damageType, List<WorldObject> armorLayers, Creature attacker, WorldObject weapon, float armorRendingMod = 1.0f)
         {
             var ignoreMagicArmor = (weapon?.IgnoreMagicArmor ?? false) || (attacker?.IgnoreMagicArmor ?? false);

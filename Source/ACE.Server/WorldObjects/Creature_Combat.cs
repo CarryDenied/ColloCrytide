@@ -881,6 +881,69 @@ namespace ACE.Server.WorldObjects
             return shieldMod;
         }
 
+        public int GetShieldValue(Creature attacker, DamageType damageType, WorldObject weapon, WorldObject shield, bool ignoreMagicArmor)
+        {
+            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.EoR && CombatMode == CombatMode.NonCombat)
+                return 0;
+
+            var player = this as Player;
+            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+            {
+                if (player != null && GetCreatureSkill(Skill.Shield).AdvancementClass < SkillAdvancementClass.Trained)
+                    return 0;
+
+                // we cant block our own attacks
+                if (attacker == this)
+                    return 0;
+            }
+
+            bool bypassShieldAngleCheck = false;
+            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && (weapon == null || ((weapon.IgnoreShield ?? 0) == 0 && !weapon.IsTwoHanded)))
+            {
+                var techniqueTrinket = GetEquippedTrinket();
+                if (techniqueTrinket != null && techniqueTrinket.TacticAndTechniqueId == (int)TacticAndTechniqueType.Defensive)
+                    bypassShieldAngleCheck = true; // Shields cover all angles while using the Defensive technique.
+            }
+
+            if (!bypassShieldAngleCheck)
+            {
+                // is monster in front of player,
+                // within shield effectiveness area?
+                var effectiveAngle = 180.0f;
+                var angle = GetAngle(attacker);
+                if (Math.Abs(angle) > effectiveAngle / 2.0f)
+                    return 0;
+            }
+
+            var baseSL = shield.GetProperty(PropertyInt.ArmorLevel) ?? 0;
+
+            var modSL = 0;
+            if(!ignoreMagicArmor)
+                modSL = shield.EnchantmentManager.GetArmorMod();
+
+            var effectiveSL = baseSL + modSL;
+
+            // get shield RL against damage type
+            var baseRL = GetResistance(shield, damageType);
+
+            // shield RL item enchantment additives:
+            // banes, lures
+            float modRL = 0.0f;
+            if (!ignoreMagicArmor)
+                modRL = shield.EnchantmentManager.GetArmorModVsType(damageType);
+
+            var effectiveRL = (float)(baseRL + modRL);
+
+            // resistance clamp
+            effectiveRL = Math.Clamp(effectiveRL, -2.0f, 2.0f);
+
+            var effectiveLevel = GetSkillModifiedShieldLevel(effectiveSL);
+
+            int shieldArmor = (int) (effectiveLevel * effectiveRL + 0.5);
+
+            return shieldArmor;
+        }
+
         public static double GetThrownWeaponMaxVelocity(WorldObject throwed)
         {
             Creature thrower = throwed.Wielder as Creature;
@@ -1722,5 +1785,7 @@ namespace ACE.Server.WorldObjects
         {
             PhysicsObj.ObjMaint.ClearRetaliateTargets();
         }
+
+
     }
 }

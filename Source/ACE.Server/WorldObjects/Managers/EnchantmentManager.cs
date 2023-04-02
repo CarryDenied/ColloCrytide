@@ -784,7 +784,7 @@ namespace ACE.Server.WorldObjects.Managers
             {
                 var statModVal = (int)enchantment.StatModValue;
 
-                if (positive == null || positive.Value && statModVal > 0 || !positive.Value && statModVal < 0)
+                if (positive == null || (positive.Value && statModVal > 0) || (!positive.Value && statModVal < 0))
                 {
                     modifier += statModVal;
                 }

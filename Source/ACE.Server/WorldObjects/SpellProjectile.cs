@@ -9,8 +9,10 @@ using ACE.Server.Managers;
 using ACE.Server.Network.GameEvent.Events;
 using ACE.Server.Network.GameMessages.Messages;
 using ACE.Server.WorldObjects.Entity;
+using Lifestoned.DataModel.Shared;
 using System;
 using System.Numerics;
+using DamageType = ACE.Entity.Enum.DamageType;
 
 namespace ACE.Server.WorldObjects
 {
@@ -571,6 +573,7 @@ namespace ACE.Server.WorldObjects
                 /* War Magic skill-based damage bonus
                  * http://acpedia.org/wiki/Announcements_-_2002/08_-_Atonement#Letter_to_the_Players
                  */
+                var skillMod = 1.0f;
                 if (sourcePlayer != null)
                 {
                     var magicSkill = sourcePlayer.GetCreatureSkill(Spell.School).Current;
@@ -578,11 +581,11 @@ namespace ACE.Server.WorldObjects
                     if (magicSkill > Spell.Power)
                     {
                         var percentageBonus = (magicSkill - Spell.Power) / 1000.0f;
-
-                        skillBonus = Spell.MinDamage * percentageBonus;
+                        var amountOfBonus = Math.Min((float)magicSkill / ((float)Spell.Power * 2), 1.0f);
+                        skillMod = 1.0f + (percentageBonus * amountOfBonus);
                     }
                 }
-                baseDamage = ThreadSafeRandom.Next(Spell.MinDamage, Spell.MaxDamage);
+                baseDamage = (int)(ThreadSafeRandom.Next(Spell.MinDamage, Spell.MaxDamage) * skillMod);
                 
                 if (Common.ConfigManager.Config.Server.WorldRuleset <= Common.Ruleset.Infiltration)
                 {
@@ -608,7 +611,7 @@ namespace ACE.Server.WorldObjects
                     resistanceMod *= (float)PropertyManager.GetDouble("void_pvp_modifier").Item;
                 }
 
-                finalDamage = baseDamage + critDamageBonus + skillBonus;
+                finalDamage = baseDamage + critDamageBonus;
 
                 finalDamage *= elementalDamageMod * slayerMod * resistanceMod * absorbMod;
             }

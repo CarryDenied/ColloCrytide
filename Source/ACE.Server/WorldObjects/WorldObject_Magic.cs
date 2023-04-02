@@ -2117,8 +2117,8 @@ namespace ACE.Server.WorldObjects
                     if (magicSkill > spell.Power)
                     {
                         var percentageBonus = (magicSkill - spell.Power) / 1000.0f;
-
-                        skillMod = 1.0f + percentageBonus;
+                        var amountOfBonus = Math.Min((float)magicSkill / ((float)spell.Power * 2), 1.0f);
+                        skillMod = 1.0f + (percentageBonus * amountOfBonus);
                     }
                 }
             }
