@@ -1110,6 +1110,8 @@ namespace ACE.Server.Managers
 
             var modified = ModifyItem(player, recipe, source, target, result, success);
 
+            result.MutateQuestItem();
+
             // broadcast different messages based on recipe type
             if (!recipe.IsTinkering())
             {
