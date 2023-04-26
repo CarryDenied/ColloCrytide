@@ -698,10 +698,6 @@ namespace ACE.Server.WorldObjects
 
         private string QuestItem_ApplyPhantomMutation()
         {           
-            this.ImbuedEffect = ImbuedEffectType.AcidRending;
-            this.W_DamageType = DamageType.Acid;
-            this.SetProperty(PropertyDataId.IconUnderlay, 0x06003355);
-
             this.ImbuedEffect = ImbuedEffectType.IgnoreAllArmor;
 
             //Remove all spells
