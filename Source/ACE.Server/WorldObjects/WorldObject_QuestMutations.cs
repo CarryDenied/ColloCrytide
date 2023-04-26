@@ -25,7 +25,8 @@ namespace ACE.Server.WorldObjects
             AttributeCantrip = 2,
             SkillCantrip = 3,
             ItemCantrip = 4,
-            Rend = 5
+            Rend = 5,
+            Phantom = 6
         }
         private enum QuestItemClothingMutationType
         {
@@ -40,8 +41,8 @@ namespace ACE.Server.WorldObjects
         private enum QuestItemJewelryMutationType
         {
             None = 0,
-            AttributeCantrip = 1,
-            SkillCantrip = 2,
+            AttributeCantrip = 2,
+            SkillCantrip = 3,
 
         }
 
@@ -108,9 +109,24 @@ namespace ACE.Server.WorldObjects
             //  Rend / Rating = 5
             List<int> mutationTypes = new List<int>();
 
-            for(int i = 0; i < mutationCount; i++)
+            for (int i = 0; i < mutationCount; i++)
             {
-                int mutationType = rand.Next(1, 6);
+                int mutationType = 0;
+                if (this.ItemType == ItemType.MeleeWeapon || this.ItemType == ItemType.MissileWeapon)
+                {
+                    //Include phantoms on 3rd mutation roll
+                    if (i == 2)
+                        mutationType = rand.Next(1, 7);
+                    else
+                        mutationType = rand.Next(1, 6);
+
+                }
+                else if (this.ItemType == ItemType.Caster)
+                    mutationType = rand.Next(1, 6);
+                else if (this.ItemType == ItemType.Armor || this.ItemType == ItemType.Clothing)
+                    mutationType = rand.Next(1, 6);
+                else if (this.ItemType == ItemType.Jewelry)
+                    mutationType = rand.Next(2, 4);
 
                 //For Slayers, Rends, Sets and Steel Tinks, don't allow those to be added more than once, reroll if already added
                 int rerollAttempts = 0; //just a fail-safe to avoid an infinite loop, even tho it shouldn't be possible
@@ -121,6 +137,14 @@ namespace ACE.Server.WorldObjects
                 }
 
                 mutationTypes.Add(mutationType);
+
+                //If you rolled a phantom, remove any other mutation rolls that involve adding spells, because unenchantable would negate those
+                if ((this.ItemType == ItemType.MeleeWeapon || this.ItemType == ItemType.MissileWeapon) && mutationType == 6)
+                {
+                    mutationTypes.Remove(2);
+                    mutationTypes.Remove(3);
+                    mutationTypes.Remove(4);
+                }
             }
 
             //Apply the mutations
@@ -144,6 +168,9 @@ namespace ACE.Server.WorldObjects
                             break;
                         case 5: //Rend
                             resultMessage.Append(QuestItem_ApplyRendMutation() + "\n");
+                            break;
+                        case 6: //Phantom
+                            resultMessage.Append(QuestItem_ApplyPhantomMutation() + "\n");
                             break;
                     }
                 }
@@ -172,10 +199,10 @@ namespace ACE.Server.WorldObjects
                 {
                     switch (mutationType)
                     {
-                        case 1: //AttributeCantrip
+                        case 2: //AttributeCantrip
                             resultMessage.Append(QuestItem_ApplyAttributeCantripMutation() + "\n");
                             break;
-                        case 2: //SkillCantrip
+                        case 3: //SkillCantrip
                             resultMessage.Append(QuestItem_ApplySkillCantripMutation() + "\n");
                             break;
                     }
@@ -667,6 +694,30 @@ namespace ACE.Server.WorldObjects
             }
 
             return resultMsg;
+        }
+
+        private string QuestItem_ApplyPhantomMutation()
+        {           
+            this.ImbuedEffect = ImbuedEffectType.AcidRending;
+            this.W_DamageType = DamageType.Acid;
+            this.SetProperty(PropertyDataId.IconUnderlay, 0x06003355);
+
+            this.ImbuedEffect = ImbuedEffectType.IgnoreAllArmor;
+
+            //Remove all spells
+            var spellList = this.Biota.GetKnownSpellsIds(BiotaDatabaseLock);
+            foreach (var spell in spellList)
+            {
+                this.Biota.TryRemoveKnownSpell(spell, BiotaDatabaseLock);
+            }
+
+            //Reduce Dmg by 75%
+            this.Damage = this.Damage.HasValue ? (int)Math.Round(this.Damage.Value * 0.25) : null;
+
+            //Make it Unenchantable
+            this.ResistMagic = 9999;
+
+            return "Added Phantasmal to the quest item!";
         }
     }      
 }
