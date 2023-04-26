@@ -1111,7 +1111,12 @@ namespace ACE.Server.Managers
             var modified = ModifyItem(player, recipe, source, target, result, success);
 
             if (result != null)
-                result.MutateQuestItem();
+            {
+                var mutationResult = result.MutateQuestItem();
+
+                if(!string.IsNullOrEmpty(mutationResult))
+                    player.Session.Network.EnqueueSend(new GameMessageSystemChat(mutationResult, ChatMessageType.System));
+            }
 
             // broadcast different messages based on recipe type
             if (!recipe.IsTinkering())
