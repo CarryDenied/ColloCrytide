@@ -698,7 +698,7 @@ namespace ACE.Server.WorldObjects
 
         private string QuestItem_ApplyPhantomMutation()
         {           
-            this.ImbuedEffect = ImbuedEffectType.IgnoreAllArmor;
+            this.ImbuedEffect |= ImbuedEffectType.IgnoreAllArmor;
 
             //Remove all spells
             var spellList = this.Biota.GetKnownSpellsIds(BiotaDatabaseLock);
