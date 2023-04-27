@@ -713,6 +713,9 @@ namespace ACE.Server.WorldObjects
             //Make it Unenchantable
             this.ResistMagic = 9999;
 
+            //add translucency
+            this.Translucency = .70f;
+
             return "Added Phantasmal to the quest item!";
         }
     }      
