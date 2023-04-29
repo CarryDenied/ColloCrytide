@@ -19,11 +19,13 @@ namespace ACE.Server.Factories.Tables.Wcids
             ((WeenieClassName)50129,      1.00f ), // Spell Extraction Scroll VII
             ((WeenieClassName)50140,      1.00f ), // Minor Cantrip Extraction Scroll
             ((WeenieClassName)50141,      1.00f ), // Major Cantrip Extraction Scroll
-            ((WeenieClassName)11475,      1.00f ), // Black dye pot
+            ((WeenieClassName)11475,      1.00f ), // Black Dye Pot
             ((WeenieClassName)7299,       1.00f ), // Diamond Scarabs
-            ((WeenieClassName)22449,      1.00f ), // Plentiful Healing kits
-            ((WeenieClassName)51445,      1.00f ), // Weapon tailoring kit
-            ((WeenieClassName)41956,      1.00f ), // Armor tailoring kit
+            ((WeenieClassName)22449,      1.00f ), // Plentiful Healin Kits
+            ((WeenieClassName)51445,      1.00f ), // Weapon Tailoring Kit
+            ((WeenieClassName)41956,      1.00f ), // Armor Tailoring Kit
+            ((WeenieClassName)29273,      1.00f ), // Weapon Imbue Augmentation Gem
+
         };
 
         private static Dictionary<WeenieClassName, int> specialItemsUnmutatedAmount = new Dictionary<WeenieClassName, int>()
@@ -37,6 +39,8 @@ namespace ACE.Server.Factories.Tables.Wcids
             {(WeenieClassName)22449,       2 }, // Plentiful Healing kits
             {(WeenieClassName)51445,       1 }, // Weapon tailoring kit
             {(WeenieClassName)41956,       1 }, // Armor tailoring kit
+            {(WeenieClassName)29273,       1 }, // Weapon imbue augmentation gem
+
         };
 
         private static ChanceTable<WeenieClassName> specialItemsSalvageWcids = new ChanceTable<WeenieClassName>(ChanceTableType.Weight)
@@ -46,12 +50,12 @@ namespace ACE.Server.Factories.Tables.Wcids
             ( WeenieClassName.materialiron,             3.00f ), // Weapon Damage + 1
             ( WeenieClassName.materialmahogany,         3.00f ), // Missile Weapon Mod + 4%
 
-            ( WeenieClassName.materialcarnelian,        2.00f ), // Minor Strength
-            ( WeenieClassName.materialsmokyquartz,      2.00f ), // Minor Coordination
-            ( WeenieClassName.materialbloodstone,       2.00f ), // Minor Endurance
-            ( WeenieClassName.materialrosequartz,       2.00f ), // Minor Quickness
-            ( WeenieClassName.materialagate,            2.00f ), // Minor Focus
-            ( WeenieClassName.materiallapislazuli,      2.00f ), // Minor Willpower
+            //( WeenieClassName.materialcarnelian,        2.00f ), // Minor Strength
+            //( WeenieClassName.materialsmokyquartz,      2.00f ), // Minor Coordination
+            //( WeenieClassName.materialbloodstone,       2.00f ), // Minor Endurance
+            //( WeenieClassName.materialrosequartz,       2.00f ), // Minor Quickness
+            //( WeenieClassName.materialagate,            2.00f ), // Minor Focus
+            //( WeenieClassName.materiallapislazuli,      2.00f ), // Minor Willpower
 
             ( WeenieClassName.materialmalachite,        2.00f ), // Warrior's Vigor
             ( WeenieClassName.materialhematite,         2.00f ), // Warrior's Vitality
