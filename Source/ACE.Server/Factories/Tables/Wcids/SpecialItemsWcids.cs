@@ -21,7 +21,7 @@ namespace ACE.Server.Factories.Tables.Wcids
             ((WeenieClassName)50141,      1.00f ), // Major Cantrip Extraction Scroll
             ((WeenieClassName)11475,      1.00f ), // Black dye pot
             ((WeenieClassName)7299,       1.00f ), // Diamond Scarabs
-            ((WeenieClassName)22499,      1.00f ), // Plentiful Healing kits
+            ((WeenieClassName)22449,      1.00f ), // Plentiful Healing kits
             ((WeenieClassName)51445,      1.00f ), // Weapon tailoring kit
             ((WeenieClassName)41956,      1.00f ), // Armor tailoring kit
         };
@@ -34,7 +34,7 @@ namespace ACE.Server.Factories.Tables.Wcids
             {(WeenieClassName)50141,       5 }, // Major Cantrip Extraction Scroll
             {(WeenieClassName)11475,       5 }, // Black dye pot
             {(WeenieClassName)7299,       10 }, // Diamond Scarabs
-            {(WeenieClassName)22499,       2 }, // Plentiful Healing kits
+            {(WeenieClassName)22449,       2 }, // Plentiful Healing kits
             {(WeenieClassName)51445,       1 }, // Weapon tailoring kit
             {(WeenieClassName)41956,       1 }, // Armor tailoring kit
         };
