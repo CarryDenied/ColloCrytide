@@ -766,10 +766,6 @@ namespace ACE.Server.Managers
             {
                 target.ItemSpellcraft = (target.ItemSpellcraft ?? 0) + difficulty;
                 target.ItemDifficulty = (target.ItemDifficulty ?? 0) + difficulty;
-                int newMaxMana = (target.ItemMaxMana ?? 0);
-                target.ItemMaxMana = newMaxMana + difficulty * 4;
-                target.ItemCurMana = target.ItemMaxMana;
-                target.ItemManaCost = (target.ItemManaCost ?? 0) + difficulty;
             }
             if (target.UiEffects == null)
             {
@@ -1109,14 +1105,6 @@ namespace ACE.Server.Managers
                 result = CreateItem(player, createItem, createAmount);
 
             var modified = ModifyItem(player, recipe, source, target, result, success);
-
-            if (result != null)
-            {
-                var mutationResult = result.MutateQuestItem();
-
-                if(!string.IsNullOrEmpty(mutationResult))
-                    player.Session.Network.EnqueueSend(new GameMessageSystemChat(mutationResult, ChatMessageType.System));
-            }
 
             // broadcast different messages based on recipe type
             if (!recipe.IsTinkering())

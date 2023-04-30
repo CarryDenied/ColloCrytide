@@ -25,7 +25,6 @@ namespace ACE.Server.Factories.Tables.Wcids
             ((WeenieClassName)51445,      1.00f ), // Weapon Tailoring Kit
             ((WeenieClassName)41956,      1.00f ), // Armor Tailoring Kit
             ((WeenieClassName)29273,      1.00f ), // Weapon Imbue Augmentation Gem
-
         };
 
         private static Dictionary<WeenieClassName, int> specialItemsUnmutatedAmount = new Dictionary<WeenieClassName, int>()
@@ -40,7 +39,6 @@ namespace ACE.Server.Factories.Tables.Wcids
             {(WeenieClassName)51445,       1 }, // Weapon tailoring kit
             {(WeenieClassName)41956,       1 }, // Armor tailoring kit
             {(WeenieClassName)29273,       1 }, // Weapon imbue augmentation gem
-
         };
 
         private static ChanceTable<WeenieClassName> specialItemsSalvageWcids = new ChanceTable<WeenieClassName>(ChanceTableType.Weight)
