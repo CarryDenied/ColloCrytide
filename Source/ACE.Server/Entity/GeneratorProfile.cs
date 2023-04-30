@@ -286,8 +286,6 @@ namespace ACE.Server.Entity
 
                 var success = false;
 
-                obj.MutateQuestItem();
-
                 if (RegenLocationType.HasFlag(RegenLocationType.Specific))
                     success = Spawn_Specific(obj);
 
