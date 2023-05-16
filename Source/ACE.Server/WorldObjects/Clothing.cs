@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using ACE.DatLoader;
 using ACE.DatLoader.FileTypes;
 using ACE.Entity;
