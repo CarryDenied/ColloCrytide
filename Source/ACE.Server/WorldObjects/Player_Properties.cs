@@ -294,6 +294,11 @@ namespace ACE.Server.WorldObjects
             set { if (!value) RemoveProperty(PropertyBool.LoginAtLifestone); else SetProperty(PropertyBool.LoginAtLifestone, value); }
         }
 
+        public bool IsHardcore
+        {
+            get => GetProperty(PropertyBool.IsHardcore) ?? false;
+        }
+
         /*public bool IsOlthoiPlayer()
         {
             switch (WeenieClassId)

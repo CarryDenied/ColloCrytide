@@ -115,7 +115,9 @@ namespace ACE.Server.Network.Managers
                         log.DebugFormat("Login Request from {0}", endPoint);
 
                         var ipAllowsUnlimited = ConfigManager.Config.Server.Network.AllowUnlimitedSessionsFromIPAddresses.Contains(endPoint.Address.ToString());
-                        if (ipAllowsUnlimited || ConfigManager.Config.Server.Network.MaximumAllowedSessionsPerIPAddress == -1 || GetSessionEndpointTotalByAddressCount(endPoint.Address) < ConfigManager.Config.Server.Network.MaximumAllowedSessionsPerIPAddress)
+                        var withinAllowedCount = ConfigManager.Config.Server.Network.MaximumAllowedSessionsPerIPAddress == -1
+                                         || GetSessionEndpointTotalByAddressCount(endPoint.Address) < ConfigManager.Config.Server.Network.MaximumAllowedSessionsPerIPAddress;
+                        if (ipAllowsUnlimited || withinAllowedCount)
                         {
                             var session = FindOrCreateSession(connectionListener, endPoint);
                             if (session != null)

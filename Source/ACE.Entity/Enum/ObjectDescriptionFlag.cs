@@ -17,6 +17,7 @@ namespace ACE.Entity.Enum
         Book                   = 0x00000100,
         Vendor                 = 0x00000200,
         PkSwitch               = 0x00000400,
+        HcSwitch               = 0x00000420,
         NpkSwitch              = 0x00000800,
         Door                   = 0x00001000,
         Corpse                 = 0x00002000,

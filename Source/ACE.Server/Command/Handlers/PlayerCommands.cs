@@ -17,6 +17,7 @@ using ACE.Server.WorldObjects;
 using System.Linq;
 using System.Text;
 
+
 namespace ACE.Server.Command.Handlers
 {
     public static class PlayerCommands
@@ -900,6 +901,124 @@ namespace ACE.Server.Command.Handlers
             {
                 session.Player.TrackObject(entry, true);
             }
+        }
+
+        /// <summary>
+        /// List top 13 Hardcore characters by total XP
+        /// </summary>
+        [CommandHandler("hc_leaders_all", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "List top 13 Hardcore characters by total XP.")]
+        public static void HandleHCLeadersAll(Session session, params string[] parameters)
+        {
+            if (DateTime.UtcNow - session.Player.PrevHCAll < TimeSpan.FromMinutes(1))
+            {
+                session.Network.EnqueueSend(new GameMessageSystemChat("You have used this command too recently!", ChatMessageType.Broadcast));
+                return;
+            }
+
+            session.Player.PrevHCAll = DateTime.UtcNow;
+
+            StringBuilder message = new StringBuilder();
+            message.Append("Hardcore Players by XP: \n");
+            message.Append("-----------------------\n");
+            uint playerCounter = 1;
+            // Note: this includes deleted characters
+            var biotas = DatabaseManager.Shard.BaseDatabase.GetAllPlayerBiotasInParallel(true)
+                .OrderByDescending(b => b.PropertiesInt64.ElementAt((int)ACE.Entity.Enum.Properties.PropertyInt64.TotalExperience).Value);
+            foreach (var biota in biotas)
+            {
+                var thePlayer = new OfflinePlayer(biota);
+                if (thePlayer.IsHardcore)
+                {
+                    var label = playerCounter < 10 ? $" {playerCounter}." : $"{playerCounter}.";
+                    message.Append($"{label} {thePlayer.Name} - Level {thePlayer.Level} ({(thePlayer.IsDeleted ? "Dead" : "Alive")})\n");
+                    playerCounter++;
+                }
+                if (playerCounter > 13)
+                {
+                    message.Append("-----------------------\n");
+                    break;
+                }
+            }
+
+            CommandHandlerHelper.WriteOutputInfo(session, message.ToString(), ChatMessageType.Broadcast);
+        }
+
+        /// <summary>
+        /// List top 13 living Hardcore characters by total XP
+        /// </summary>
+        [CommandHandler("hc_leaders_now", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "List top 13 living Hardcore characters by total XP.")]
+        public static void HandleHCLeadersNow(Session session, params string[] parameters)
+        {
+            if (DateTime.UtcNow - session.Player.PrevHCLiving < TimeSpan.FromMinutes(1))
+            {
+                session.Network.EnqueueSend(new GameMessageSystemChat("You have used this command too recently!", ChatMessageType.Broadcast));
+                return;
+            }
+
+            session.Player.PrevHCLiving = DateTime.UtcNow;
+
+            StringBuilder message = new StringBuilder();
+            message.Append("Living Hardcore Players by XP: \n");
+            message.Append("------------------------------\n");
+
+            uint playerCounter = 1;
+            foreach (var player in PlayerManager.GetAllPlayers().OrderByDescending(p => p.GetProperty(ACE.Entity.Enum.Properties.PropertyInt64.TotalExperience)))
+            {
+                if (player.IsHardcore && !player.IsDeleted)
+                {
+                    var label = playerCounter < 10 ? $" {playerCounter}." : $"{playerCounter}.";
+                    message.Append($"{label} {player.Name} - Level {player.Level}\n");
+                    playerCounter++;
+                }
+                if (playerCounter == 13)
+                {
+                    message.Append("------------------------------\n");
+                    break;
+                }
+            }
+
+            CommandHandlerHelper.WriteOutputInfo(session, message.ToString(), ChatMessageType.Broadcast);
+        }
+
+        /// <summary>
+        /// Reports on the top 13 Hardcore characters by PvP kills
+        /// </summary>
+        [CommandHandler("hc_pk_board_all", AccessLevel.Player, CommandHandlerFlag.RequiresWorld, "Reports on the top 13 Hardcore characters ranked by PvP kills.")]
+        public static void HandleHCLeadersPvP(Session session, params string[] parameters)
+        {
+             if (DateTime.UtcNow - session.Player.PrevHCPvP < TimeSpan.FromMinutes(1))
+            {
+                session.Network.EnqueueSend(new GameMessageSystemChat("You have used this command too recently!", ChatMessageType.Broadcast));
+                return;
+            }
+
+            session.Player.PrevHCPvP = DateTime.UtcNow;
+
+            StringBuilder message = new StringBuilder();
+            message.Append("Hardcore PvP Leaderboard:\n");
+            message.Append("-------------------------\n");
+
+            uint playerCounter = 1;
+            // Note: this includes deleted characters
+            var biotas = DatabaseManager.Shard.BaseDatabase.GetAllPlayerBiotasInParallel(true)
+                .OrderByDescending(b => b.PropertiesInt64.ElementAt((int)ACE.Entity.Enum.Properties.PropertyInt.PlayerKillsPk));
+            foreach (var biota in biotas)
+            {
+                var thePlayer = new OfflinePlayer(biota);
+                if (thePlayer.IsHardcore && thePlayer.GetProperty(ACE.Entity.Enum.Properties.PropertyInt.PlayerKillsPk) > 0)
+                {
+                    var label = playerCounter < 10 ? $" {playerCounter}." : $"{playerCounter}.";
+                    message.Append($"{label} {thePlayer.Name} - Level {thePlayer.Level} ({(thePlayer.IsDeleted ? "Dead" : "Alive")})\n");
+                    playerCounter++;
+                }
+                if (playerCounter > 13)
+                {
+                    message.Append("-------------------------\n");
+                    break;
+                }
+            }
+
+            CommandHandlerHelper.WriteOutputInfo(session, message.ToString(), ChatMessageType.Broadcast);
         }
     }
 }

@@ -1,5 +1,5 @@
 using System;
-
+using System.Linq;
 using ACE.Common;
 using ACE.DatLoader;
 using ACE.DatLoader.FileTypes;
@@ -10,6 +10,7 @@ using ACE.Entity.Models;
 using ACE.Server.Entity;
 using ACE.Server.Entity.Actions;
 using ACE.Server.Managers;
+using ACE.Server.Network;
 using ACE.Server.Network.GameEvent.Events;
 using ACE.Server.Network.GameMessages.Messages;
 
@@ -35,6 +36,7 @@ namespace ACE.Server.WorldObjects
 
         public bool IsPKSwitch  => PkLevelModifier ==  1;
         public bool IsNPKSwitch => PkLevelModifier == -1;
+        public bool IsHardCoreSwitch => HardCoreModifier;
 
         private void SetEphemeralValues()
         {
@@ -45,6 +47,9 @@ namespace ACE.Server.WorldObjects
 
             if (IsPKSwitch)
                 ObjectDescriptionFlags |= ObjectDescriptionFlag.PkSwitch;
+
+            if (IsHardCoreSwitch)
+                ObjectDescriptionFlags |= ObjectDescriptionFlag.HcSwitch;
         }
 
         public override ActivationResult CheckUseRequirements(WorldObject activator)
@@ -73,6 +78,20 @@ namespace ACE.Server.WorldObjects
 
                 player.Session.Network.EnqueueSend(new GameMessageSystemChat("Player Killer Lites may not change their PK status.", ChatMessageType.Broadcast)); // not sure how retail handled this case
 
+                return new ActivationResult(false);
+            }
+
+            if (player.IsHardcore)
+            {
+                if (!string.IsNullOrWhiteSpace(GetProperty(PropertyString.UsePkServerError)))
+                    player.Session.Network.EnqueueSend(new GameMessageSystemChat(GetProperty(PropertyString.UsePkServerError), ChatMessageType.Broadcast));
+                player.Session.Network.EnqueueSend(new GameMessageSystemChat("Your soul is committed. Feel free to die and start anew.", ChatMessageType.Broadcast));
+                return new ActivationResult(false);
+            }
+
+            if (player.Level > 3 && IsHardCoreSwitch)
+            {
+                player.Session.Network.EnqueueSend(new GameMessageSystemChat("Only a fresh soul may become a Hardcore Player Killer.", ChatMessageType.Broadcast));
                 return new ActivationResult(false);
             }
 
@@ -141,6 +160,12 @@ namespace ACE.Server.WorldObjects
                 actionChain.EnqueueChain();
 
                 return;
+            }
+
+            if (!player.IsHardcore && IsHardCoreSwitch)
+            {
+                player.SetProperty(PropertyBool.IsHardcore, true);
+                player.AddTitle(203, true); //ID_CharacterTitle_Cursed_Adventurer
             }
 
             if ((player.PkLevel == PKLevel.NPK && IsPKSwitch) || (player.PkLevel == PKLevel.PK && IsNPKSwitch))

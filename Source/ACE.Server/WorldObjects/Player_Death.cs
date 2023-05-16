@@ -15,6 +15,7 @@ using ACE.Server.Network.Handlers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ACE.Server.Command.Handlers;
 
 namespace ACE.Server.WorldObjects
 {
@@ -283,6 +284,12 @@ namespace ACE.Server.WorldObjects
 
                     IsInDeathProcess = false;
 
+                    if (IsHardcore)
+                    {
+                        CharacterCommands.HandleCharacterForcedDelete(Session, Name);
+                        IsLoggingOut = true;
+                    }
+
                     if (IsLoggingOut)
                         LogOut_Final(true);
                 });
@@ -480,7 +487,8 @@ namespace ACE.Server.WorldObjects
             bool onDropRecentlyPurchasedLandblock = corpse.IsOnDropRecentlyPurchasedLandblock;
             bool onNoDropLandblock = corpse.IsOnNoDropLandblock;
 
-            if ((!onDropAllPyrealsLandblock && onNoDropLandblock) || IsPKLiteDeath(corpse.KillerId)) // Pyreals will drop even on no drop landblocks if it's also a drop all pyreals landblock.
+            // Pyreals will drop even on no drop landblocks if it's also a drop all pyreals landblock.
+            if (!IsHardcore && ((!onDropAllPyrealsLandblock && onNoDropLandblock) || IsPKLiteDeath(corpse.KillerId)))
                 return new List<WorldObject>();
 
             var dropItems = new List<WorldObject>();
@@ -512,9 +520,52 @@ namespace ACE.Server.WorldObjects
                 dropItems.AddRange(inventory);
             }
 
-            if (!onNoDropLandblock)
+            if (IsHardcore || !onNoDropLandblock)
             {
                 var numItemsDropped = GetNumItemsDropped(corpse);
+
+                if (IsHardcore)
+                {
+                    var topDamager = DamageHistory.GetTopDamager(false);
+                    // Drop 25% more + a trophy for hardcore PvP deaths
+                    if (!(topDamager == null || !topDamager.IsPlayer))
+                    {
+                        var pK = topDamager.TryGetAttacker() as Player;
+                        if (pK != null)
+                        {
+                            numItemsDropped = (int)Math.Ceiling(numItemsDropped * 1.25);
+                            numItemsDropped = Math.Min(numItemsDropped, MaxItemsDropped);
+
+                            uint hardcoreTrophyWeenie = 50150; // low
+                            if (Level > 20 && Level < 50)
+                            {
+                                hardcoreTrophyWeenie = 50151; // mid
+                            }
+                            else if (Level > 50 && Level <80)
+                            {
+                                hardcoreTrophyWeenie = 50152; // high
+                            }
+                            else if (Level > 80)
+                            {
+                                hardcoreTrophyWeenie = 50153; // extreme
+                            }
+
+                            var hardcoreTrophy = WorldObjectFactory.CreateNewWorldObject(hardcoreTrophyWeenie);
+                            if (hardcoreTrophy != null)
+                            {
+                                hardcoreTrophy.Name = "Skull of " + Name;
+                                hardcoreTrophy.LongDesc = "A trophy harvested from the corpse of " + Name +
+                                                          ", who was slain at level " + Level +
+                                                          " by " + pK.Name + ", who was level " + pK.Level;
+                                hardcoreTrophy.CoinValue = 665*Level ;
+                                hardcoreTrophy.EncumbranceVal = Level;
+                                hardcoreTrophy.MaxStackSize = 1;
+                                corpse.TryAddToInventory(hardcoreTrophy);
+                            }
+
+                        }
+                    }
+                }
 
                 if (numItemsDropped > 0)
                 {
@@ -677,13 +728,13 @@ namespace ACE.Server.WorldObjects
 
             var level = Level ?? 1;
 
-            if (level <= 10)
+            if (level <= 10 && !IsHardcore)
                 return 0;
 
-            if (level >= 11 && level <= 20)
+            if (level >= 11 && level <= 20 && !IsHardcore)
                 return ThreadSafeRandom.Next(0, 1);
 
-            // level 21+
+            // level 21+ or Hardcore
             int numItemsDropped;
             if (ConfigManager.Config.Server.WorldRuleset == Ruleset.EoR)
                 numItemsDropped = (level / 20) + ThreadSafeRandom.Next(0, 2);
@@ -772,6 +823,12 @@ namespace ACE.Server.WorldObjects
 
         public void HandleActionAddPlayerPermission(string playerName)
         {
+            if (IsHardcore)
+            {
+                Session.Network.EnqueueSend(new GameMessageSystemChat($"Hardcore may not grant corpse looting permissions.", ChatMessageType.Broadcast));
+                return;
+            }
+
             // is this player online?
             var player = PlayerManager.GetOnlinePlayer(playerName);
 

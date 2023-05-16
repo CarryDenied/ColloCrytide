@@ -307,6 +307,11 @@ namespace ACE.Server.Managers
             if (camp.CampId == 0)
                 decayRate = DecayRateRest; // Rest camp decays at a higher rate
 
+            if (camp.CampId > 0xFFFF0000 && Player.IsHardcore) // Hardcore turn-ins decay slower
+            {
+                decayRate *= (float)0.5;
+            }
+
             uint amountToDecay = (uint)Math.Max(Math.Floor((secondsSinceLastCheck - DelayBeforeDecayStart) / decayRate), 0);
 
             if (amountToDecay > 0)
@@ -391,7 +396,14 @@ namespace ACE.Server.Managers
                 {
                     CheckDecay(typeCamp, true);
                     typeCampBonus = 1.0f - ((float)typeCamp.NumInteractions / GetMaxInteractions(typeCamp.CampId));
-                    Increment(typeCamp);
+                    if (typeCampId > 0xFFFF0000 && Player.IsHardcore) // Turn-in Type Camp
+                    {
+                        Increment(typeCamp, 5);
+                    }
+                    else
+                    {
+                        Increment(typeCamp);
+                    }
                 }
             }
 

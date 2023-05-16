@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using ACE.Common;
 using ACE.Database;
 using ACE.Database.Models.World;
 using ACE.Entity;
@@ -51,7 +51,10 @@ namespace ACE.Server.WorldObjects
                 OnDeath_HandleKillTask(KillQuest3);
 
             if (!IsOnNoDeathXPLandblock)
+            {
                 OnDeath_GrantXP();
+                OnDeath_Hardcore();
+            }
 
             return deathMessage;
         }
@@ -202,6 +205,23 @@ namespace ACE.Server.WorldObjects
                 else
                     totalXP = (XpOverride ?? 0) * damagePercent;
 
+                var playerKilled = DamageHistory.Creature as Player;
+                if (playerKilled.IsHardcore && playerDamager.IsHardcore)
+                {
+                    if (playerDamager.Level <= playerKilled.Level)
+                    {
+                        totalXP *= 2;
+                    }
+                }
+
+                // Participate in killing player 10 levels junior, accrue Vitae, unless victim is 80+
+                if (null != playerKilled && (playerDamager.Level > playerKilled.Level + 10) && playerKilled.Level <80)
+                {
+                    playerDamager.Session.Network.EnqueueSend(new GameMessageSystemChat(
+                            "Your soul is soiled for your role in this dastardly deed!", ChatMessageType.Broadcast));
+                    playerDamager.InflictVitaePenalty(2);
+                }
+
                 playerDamager.EarnXP((long)Math.Round(totalXP), XpType.Kill, Level, (uint)CreatureType, ShareType.All);
 
                 // handle luminance
@@ -212,6 +232,58 @@ namespace ACE.Server.WorldObjects
                 }
             }
         }
+
+        /// <summary>
+        ///  Hardcore level up if killing a higher level player, or significant XP if approximately equal
+        ///  Pk seal-clubbers accumulate vitae
+        /// </summary>
+        void OnDeath_Hardcore()
+        {
+            var playerKilled = DamageHistory.Creature as Player;
+            var playerKiller = DamageHistory.GetTopDamager(false).TryGetAttacker() as Player;
+            if (null == playerKilled || null == playerKiller)
+                return;
+
+            // Both hardcore
+            if (playerKilled.IsHardcore && playerKiller.IsHardcore)
+            {
+                double totalXP = 0;
+                var xpToLevel = playerKiller.GetRemainingXP();
+                // Level up highlander style for killing a higher level player
+                if (playerKiller.Level < playerKilled.Level)
+                {   
+                    totalXP = xpToLevel + 42;
+                    playerKiller.Session.Network.EnqueueSend(new GameMessageSystemChat( "...Over...whelming...power!", ChatMessageType.Broadcast));
+                }
+                // Bonus XP Within 5
+                else if (playerKiller.Level <= playerKilled.Level + 5)
+                {
+                    var roll = ThreadSafeRandom.Next(0.5f, 0.8f);
+                    totalXP = xpToLevel * roll;
+                    playerKiller.Session.Network.EnqueueSend(new GameMessageSystemChat("You gained major insight from this fight!", ChatMessageType.Broadcast));
+                }
+                // Smaller Bonus XP if over 20 and not more than 10 different
+                else if (playerKiller.Level < playerKilled.Level + 10 && playerKilled.Level >= 20)
+                {
+                    var roll = ThreadSafeRandom.Next(0.25f, 0.5f);
+                    totalXP = xpToLevel * roll;
+                    playerKiller.Session.Network.EnqueueSend(new GameMessageSystemChat("You learned a little from this fight!", ChatMessageType.Broadcast));
+                }
+                // No bonus if killing lower level under 20 or more than 10 different
+                playerKiller.EarnXP((long)Math.Round(totalXP), XpType.Kill, Level, (uint?)playerKilled.CreatureType, ShareType.None);
+            }
+
+            // Kill lower level player, accrue Vitae, unless killed is 80+
+            var difference = playerKilled.Level - playerKilled.Level;
+            if (difference > 10 && playerKilled.Level < 80)
+            {
+                var penalty = (uint)Math.Ceiling((double)difference / 5); // base 2 for damage, plus bonus for the killer
+                playerKiller.InflictVitaePenalty();
+                playerKiller.Session.Network.EnqueueSend(new GameMessageSystemChat("Your soul is corrupted...", ChatMessageType.Broadcast));
+
+            }
+        }
+
         public static int GetCreatureDeathXP(int level, int hitpoints = 0, int numSpellInSpellbook = 0, int formulaVersion = 0)
         {
             double baseXp = Math.Min((1.75 * Math.Pow(level, 2)) + (20 * level), 30000);

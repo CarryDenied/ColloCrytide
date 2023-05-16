@@ -2484,6 +2484,12 @@ namespace ACE.Server.WorldObjects
             set { SetProperty(PropertyInt.PlayerKillerStatus, (int)value); }
         }
 
+        public bool HardCoreModifier
+        {
+            get => GetProperty(PropertyBool.IsHardcore) ?? false;
+            set { SetProperty(PropertyBool.IsHardcore, true); } // no un-do
+        }
+
         public CloakStatus CloakStatus
         {
             get => (CloakStatus)(GetProperty(PropertyInt.CloakStatus) ?? 0);

@@ -109,6 +109,9 @@ namespace ACE.Server.WorldObjects
 
         public DateTime PrevObjSend;
         public DateTime PrevWho;
+        public DateTime PrevHCAll;
+        public DateTime PrevHCLiving;
+        public DateTime PrevHCPvP;
 
         public float CurrentRadarRange => Location.Indoors ? MaxRadarRange_Indoors : MaxRadarRange_Outdoors;
 

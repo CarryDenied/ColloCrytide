@@ -837,16 +837,14 @@ namespace ACE.Database
         /// <summary>
         /// This will get all player biotas that are backed by characters that are not deleted.
         /// </summary>
-        public List<ACE.Entity.Models.Biota> GetAllPlayerBiotasInParallel()
+        public List<ACE.Entity.Models.Biota> GetAllPlayerBiotasInParallel(bool includeDeleted = false)
         {
             var biotas = new ConcurrentBag<ACE.Entity.Models.Biota>();
 
             using (var context = new ShardDbContext())
             {
-                var results = context.Character
-                    .Where(r => !r.IsDeleted)
-                    .AsNoTracking()
-                    .ToList();
+                var results = includeDeleted ? context.Character.AsNoTracking().ToList()
+                    : context.Character.Where(r => !r.IsDeleted).AsNoTracking().ToList();
 
                 Parallel.ForEach(results, result =>
                 {

@@ -205,6 +205,9 @@ namespace ACE.Entity.Enum.Properties
         VendorPKOnly                     = 9015,
         [ServerOnly]
         UseXpOverride                    = 9016,
+
+        // CustomDM
+        IsHardcore                       = 10001,
     }
 
     public static class PropertyBoolExtensions
