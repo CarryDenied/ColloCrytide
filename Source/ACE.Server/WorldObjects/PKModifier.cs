@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using ACE.Common;
 using ACE.DatLoader;
 using ACE.DatLoader.FileTypes;
@@ -165,6 +166,17 @@ namespace ACE.Server.WorldObjects
             {
                 player.SetProperty(PropertyBool.IsHardcore, true);
                 player.AddTitle(203, true); //ID_CharacterTitle_Cursed_Adventurer
+
+                var shirt = player.GetEquippedClothingArmor(CoverageMask.UnderwearChest).FirstOrDefault();
+                player.TryDequipObjectWithNetworking(shirt.Guid, out shirt, Player.DequipObjectAction.DequipToPack);
+                shirt.PaletteTemplate = (int?)ACE.Entity.Enum.PaletteTemplate.Red;
+                shirt.Shade = 1.0f;
+                shirt.Dyable = false;
+                shirt.LongDesc = "An official red shirt worn with pride by Hardcore initiates on important missions.";
+                player.TryEquipObjectWithNetworking(shirt, shirt.ValidLocations ?? 0);
+                player.Session.Network.EnqueueSend(new GameMessageUpdateObject(shirt));
+                player.Session.Network.EnqueueSend(new GameMessageSystemChat("Oh... an official red shirt!", ChatMessageType.Tell));
+
             }
 
             if ((player.PkLevel == PKLevel.NPK && IsPKSwitch) || (player.PkLevel == PKLevel.PK && IsNPKSwitch))
