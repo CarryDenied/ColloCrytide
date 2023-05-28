@@ -3183,34 +3183,11 @@ namespace ACE.Server.WorldObjects
             get => GetProperty(PropertyFloat.ComponentBurnRateMod);
             set { if (!value.HasValue) RemoveProperty(PropertyFloat.ComponentBurnRateMod); else SetProperty(PropertyFloat.ComponentBurnRateMod, value.Value); }
         }
-        public int? SlayerAdded
-        {
-            get => GetProperty(PropertyInt.SlayerAdded);
-            set { if (!value.HasValue) RemoveProperty(PropertyInt.SlayerAdded); else SetProperty(PropertyInt.SlayerAdded, value.Value); }
-        }
 
-        public int? ExtraSpellsMaxOverride
+        public int? ExtraSpellsCount
         {
-            get => GetProperty(PropertyInt.ExtraSpellsMaxOverride);
-            set { if (!value.HasValue) RemoveProperty(PropertyInt.ExtraSpellsMaxOverride); else SetProperty(PropertyInt.ExtraSpellsMaxOverride, value.Value); }
-        }
-
-        public int? BaseItemDifficultyOverride
-        {
-            get => GetProperty(PropertyInt.BaseItemDifficultyOverride);
-            set { if (!value.HasValue) RemoveProperty(PropertyInt.BaseItemDifficultyOverride); else SetProperty(PropertyInt.BaseItemDifficultyOverride, value.Value); }
-        }
-
-        public int? BaseSpellcraftOverride
-        {
-            get => GetProperty(PropertyInt.BaseSpellcraftOverride);
-            set { if (!value.HasValue) RemoveProperty(PropertyInt.BaseSpellcraftOverride); else SetProperty(PropertyInt.BaseSpellcraftOverride, value.Value); }
-        }
-
-        public string ExtraSpellsList
-        {
-            get => GetProperty(PropertyString.ExtraSpellsList);
-            set { if (value == null) RemoveProperty(PropertyString.ExtraSpellsList); else SetProperty(PropertyString.ExtraSpellsList, value); }
+            get => GetProperty(PropertyInt.ExtraSpellsCount);
+            set { if (!value.HasValue) RemoveProperty(PropertyInt.ExtraSpellsCount); else SetProperty(PropertyInt.ExtraSpellsCount, value.Value); }
         }
     }
 }

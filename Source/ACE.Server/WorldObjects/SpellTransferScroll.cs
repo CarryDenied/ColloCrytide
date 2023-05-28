@@ -40,7 +40,7 @@ namespace ACE.Server.WorldObjects
         private void SetEphemeralValues()
         {
         }
-        public static void BroadcastSpellTransfer(Player player, string spellName, WorldObject target, double chance, bool success)
+        public static void BroadcastSpellTransfer(Player player, string spellName, WorldObject target, double chance = 1.0f, bool success = true)
         {
             // send local broadcast
             if (success)
@@ -202,14 +202,15 @@ namespace ACE.Server.WorldObjects
                     }
                 }
 
-                if(spellToReplace != null)
+                bool isReplacement = isProc || isGem || spellToReplace != null;
+                if (!isReplacement)
                 {
-                    enchantments.Remove((SpellId)spellToReplace.Id);
-                    cantrips.Remove((SpellId)spellToReplace.Id);
-                }
+                    int spellCount = 0;
+                    var spells = target.Biota.GetKnownSpellsIds(target.BiotaDatabaseLock);
+                    if (target.ProcSpell != null && target.ProcSpell != 0)
+                        spells.Add((int)target.ProcSpell);
+                    spellCount = spells.Count;
 
-                if (!isGem && target.ProcSpell == null && spellToReplace == null)
-                {
                     if ((target.ExtraSpellsCount ?? 0) >= target.GetMaxExtraSpellsCount())
                     {
                         player.Session.Network.EnqueueSend(new GameMessageSystemChat($"The {target.NameWithMaterial} cannot contain any more spells.", ChatMessageType.Craft));
@@ -221,30 +222,17 @@ namespace ACE.Server.WorldObjects
                 if (!confirmed)
                 {
                     var extraMessage = "";
-                    if (isProc && target.ProcSpell != null)
-                    {
-                        var currentProc = new Spell(target.ProcSpell ?? 0);
-                        extraMessage = $"\nThis will replace {currentProc.Name}!\n";
-                    }
-                    else if (isGem && target.SpellDID != null)
-                    {
-                        var currentGemSpell = new Spell(target.SpellDID ?? 0);
-                        extraMessage = $"\nThis will replace {currentGemSpell.Name}!\n";
-                    }
-                    else if (spellToReplace != null)
+                    if (isProc)
+                        extraMessage = "\nThis will replace the current Cast on Strike spell!\n";
+                    else if(isGem)
+                        extraMessage = "\nThis will replace the current gem spell!\n";
+                    else if(spellToReplace != null)
                         extraMessage = $"\nThis will replace {spellToReplace.Name}!\n";
 
-                    if (!player.ConfirmationManager.EnqueueSend(new Confirmation_CraftInteration(player.Guid, source.Guid, target.Guid), $"Transfering {spellToAdd.Name} to {target.NameWithMaterial}.\n{(extraMessage.Length > 0 ? extraMessage : "")}You determine that you have a {percent.Round()} percent chance to succeed.\n\n"))
+                    if (!player.ConfirmationManager.EnqueueSend(new Confirmation_CraftInteration(player.Guid, source.Guid, target.Guid), $"Transfering {spellToAdd.Name} to {target.NameWithMaterial}.\n{(extraMessage.Length > 0 ? extraMessage : "")}\n"))
                         player.SendUseDoneEvent(WeenieError.ConfirmationInProgress);
                     else
                         player.SendUseDoneEvent();
-
-                    if (PropertyManager.GetBool("craft_exact_msg").Item)
-                    {
-                        var exactMsg = $"You have a {(float)percent} percent chance of transfering {spellToAdd.Name} to {target.NameWithMaterial}.";
-
-                        player.Session.Network.EnqueueSend(new GameMessageSystemChat(exactMsg, ChatMessageType.Craft));
-                    }
                     return;
                 }
 
@@ -266,30 +254,18 @@ namespace ACE.Server.WorldObjects
 
                 actionChain.AddAction(player, () =>
                 {
-                    var success = new Random().NextDouble() < chance;
-                    if (success)
+                    if (isProc)
                     {
-                        HandleExtraSpellList(target, spellToAddId, target.ProcSpell ?? 0);
-
                         target.ProcSpellRate = 0.15f;
                         target.ProcSpell = spellToAddId;
                         target.ProcSpellSelfTargeted = spellToAdd.IsSelfTargeted;
                     }
                     else if (isGem)
-                    {
-                        HandleExtraSpellList(target, spellToAddId, target.SpellDID ?? 0);
-
                         target.SpellDID = spellToAddId;
-                    }
                     else
                     {
                         if (spellToReplace != null)
-                        {
-                            HandleExtraSpellList(target, spellToAddId, spellToReplace.Id);
                             target.Biota.TryRemoveKnownSpell((int)spellToReplace.Id, target.BiotaDatabaseLock);
-                        }
-                        else
-                            HandleExtraSpellList(target, spellToAddId);
                         target.Biota.GetOrAddKnownSpell((int)spellToAddId, target.BiotaDatabaseLock, out _);
                     }
 
@@ -311,59 +287,10 @@ namespace ACE.Server.WorldObjects
                         var baseWeenie = DatabaseManager.World.GetCachedWeenie(target.WeenieClassId);
                         if (baseWeenie != null)
                         {
-                            target.ProcSpellRate = 0.15f;
-                            target.ProcSpell = spellToAddId;
-                            target.ProcSpellSelfTargeted = spellToAdd.IsSelfTargeted;
-                        }
-                        else if (isGem)
-                            target.SpellDID = spellToAddId;
-                        else
-                        {
-                            if (spellToReplace != null)
-                                target.Biota.TryRemoveKnownSpell((int)spellToReplace.Id, target.BiotaDatabaseLock);
-                            target.Biota.GetOrAddKnownSpell((int)spellToAddId, target.BiotaDatabaseLock, out _);
-                        }
-
-                        var newMaxBaseMana = LootGenerationFactory.GetMaxBaseMana(target);
-                        var newManaRate = LootGenerationFactory.CalculateManaRate(newMaxBaseMana);
-                        var newMaxMana = (int)spellToAdd.BaseMana * 15;
-
-                        if (target.TinkerLog != null)
-                        {
-                            var tinkers = target.TinkerLog.Split(",");
-                            var appliedMoonstoneCount = tinkers.Count(s => s == "31");
-                            newMaxMana += 500 * appliedMoonstoneCount;
-                        }
-
-                        if (isGem)
-                        {
-                            target.ItemUseable = Usable.Contained;
-                            target.ItemManaCost = (int)spellToAdd.BaseMana;
-                            var baseWeenie = DatabaseManager.World.GetCachedWeenie(target.WeenieClassId);
-                            if (baseWeenie != null)
-                            {
-                                target.Name = baseWeenie.GetName(); // Reset to base name before rebuilding suffix.
-                                target.LongDesc = LootGenerationFactory.GetLongDesc(target);
-                                target.Name = target.LongDesc;
-                            }
-                        }
-                        else if (newMaxMana > (target.ItemMaxMana ?? 0))
-                        {
-                            target.ManaRate = newManaRate;
+                            target.Name = baseWeenie.GetName(); // Reset to base name before rebuilding suffix.
                             target.LongDesc = LootGenerationFactory.GetLongDesc(target);
+                            target.Name = target.LongDesc;
                         }
-
-                        target.ItemMaxMana = newMaxMana;
-                        target.ItemCurMana = Math.Clamp(target.ItemCurMana ?? 0, 0, target.ItemMaxMana ?? 0);
-
-                        var newRollDiff = LootGenerationFactory.RollEnchantmentDifficulty(enchantments);
-                        newRollDiff += LootGenerationFactory.RollCantripDifficulty(cantrips);
-                        UpdateArcaneLoreAndSpellCraft(target, newRollDiff);
-
-                        if (!target.UiEffects.HasValue) // Elemental effects take precendence over magical as it is more important to know the element of a weapon than if it has spells.
-                            target.UiEffects = ACE.Entity.Enum.UiEffects.Magical;
-
-                        player.EnqueueBroadcast(new GameMessageUpdateObject(target));
                     }
                     else if (newMaxMana > (target.ItemMaxMana ?? 0))
                     {
@@ -371,7 +298,7 @@ namespace ACE.Server.WorldObjects
                         target.LongDesc = LootGenerationFactory.GetLongDesc(target);
                     }
 
-                    if (spellToReplace == null || (isProc && target.ProcSpell == null))
+                    if(!isReplacement)
                         target.ExtraSpellsCount = (target.ExtraSpellsCount ?? 0) + 1;
 
                     target.ItemMaxMana = newMaxMana;
@@ -387,16 +314,13 @@ namespace ACE.Server.WorldObjects
                     player.EnqueueBroadcast(new GameMessageUpdateObject(target));
 
                     player.TryConsumeFromInventoryWithNetworking(source); // Consume the scroll.
-                    BroadcastSpellTransfer(player, spellToAdd.Name, target, chance, success);
+                    BroadcastSpellTransfer(player, spellToAdd.Name, target);
                 });
 
                 player.EnqueueMotion(actionChain, MotionCommand.Ready);
 
                 actionChain.AddAction(player, () =>
                 {
-                    if (!showDialog)
-                        player.SendUseDoneEvent();
-
                     player.IsBusy = false;
                 });
 

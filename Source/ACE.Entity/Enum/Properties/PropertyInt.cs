@@ -653,11 +653,6 @@ namespace ACE.Entity.Enum.Properties
         [ServerOnly]
         VendorStockMaxAmount                     = 10010,
         ExtraSpellsCount                         = 10011,
-        ExtraSpellsMaxOverride                   = 10012,
-        [ServerOnly]
-        BaseItemDifficultyOverride               = 10013,
-        [ServerOnly]
-        BaseSpellcraftOverride                   = 10014,
     }
 
     public static class PropertyIntExtensions
