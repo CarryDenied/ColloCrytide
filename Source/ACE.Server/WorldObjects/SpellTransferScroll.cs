@@ -75,7 +75,7 @@ namespace ACE.Server.WorldObjects
                 return;
             }
 
-            if (!RecipeManager.VerifyUse(player, source, target, true) || target.Workmanship == null)
+            if (!RecipeManager.VerifyUse(player, source, target, true) || (target.Workmanship == null && target.ExtraSpellsMaxOverride == null))
             {
                 player.SendUseDoneEvent(WeenieError.YouDoNotPassCraftingRequirements);
                 return;
@@ -189,26 +189,31 @@ namespace ACE.Server.WorldObjects
                     }
                 }
 
-                int spellCount = 0;
-                var spells = target.Biota.GetKnownSpellsIds(target.BiotaDatabaseLock);
-                if (target.ProcSpell != null && target.ProcSpell != 0)
-                    spells.Add((int)target.ProcSpell);
-                spellCount = spells.Count;
+                if (!isGem && target.ProcSpell == null && spellToReplace == null)
+                {
+                    if ((target.ExtraSpellsCount ?? 0) >= target.GetMaxExtraSpellsCount())
+                    {
+                        player.Session.Network.EnqueueSend(new GameMessageSystemChat($"The {target.NameWithMaterial} cannot contain any more spells.", ChatMessageType.Craft));
+                        player.SendUseDoneEvent();
+                        return;
+                    }
+                }
 
-                var chance = Math.Clamp((10 - spellCount) * 0.1, 0.0, 1.0);
-                if (isProc || isGem || spellToReplace != null)
-                    chance = 1.0; // These are spell replacements and not additions, so full chance every time.
-                var percent = chance * 100;
-                var showDialog = player.GetCharacterOption(CharacterOption.UseCraftingChanceOfSuccessDialog);
-                if (showDialog && !confirmed)
+                if (!confirmed)
                 {
                     var extraMessage = "";
-                    if (isProc)
-                        extraMessage = "\nThis will replace the current Cast on Strike spell!\n\n";
-                    else if(isGem)
-                        extraMessage = "\nThis will replace the current gem spell!\n\n";
-                    else if(spellToReplace != null)
-                        extraMessage = $"\nThis will replace {spellToReplace.Name}!\n\n";
+                    if (isProc && target.ProcSpell != null)
+                    {
+                        var currentProc = new Spell(target.ProcSpell ?? 0);
+                        extraMessage = $"\nThis will replace {currentProc.Name}!\n";
+                    }
+                    else if (isGem && target.SpellDID != null)
+                    {
+                        var currentGemSpell = new Spell(target.SpellDID ?? 0);
+                        extraMessage = $"\nThis will replace {currentGemSpell.Name}!\n";
+                    }
+                    else if (spellToReplace != null)
+                        extraMessage = $"\nThis will replace {spellToReplace.Name}!\n";
 
                     if (!player.ConfirmationManager.EnqueueSend(new Confirmation_CraftInteration(player.Guid, source.Guid, target.Guid), $"Transfering {spellToAdd.Name} to {target.NameWithMaterial}.\n{(extraMessage.Length > 0 ? extraMessage : "")}You determine that you have a {percent.Round()} percent chance to succeed.\n\n"))
                         player.SendUseDoneEvent(WeenieError.ConfirmationInProgress);
@@ -301,8 +306,26 @@ namespace ACE.Server.WorldObjects
 
                         player.EnqueueBroadcast(new GameMessageUpdateObject(target));
                     }
-                    else
-                        player.TryConsumeFromInventoryWithNetworking(target); // Destroy the item on failure.
+                    else if (newMaxMana > (target.ItemMaxMana ?? 0))
+                    {
+                        target.ManaRate = newManaRate;
+                        target.LongDesc = LootGenerationFactory.GetLongDesc(target);
+                    }
+
+                    if (spellToReplace == null || (isProc && target.ProcSpell == null))
+                        target.ExtraSpellsCount = (target.ExtraSpellsCount ?? 0) + 1;
+
+                    target.ItemMaxMana = newMaxMana;
+                    target.ItemCurMana = Math.Clamp(target.ItemCurMana ?? 0, 0, target.ItemMaxMana ?? 0);
+
+                    var newRollDiff = LootGenerationFactory.RollEnchantmentDifficulty(enchantments);
+                    newRollDiff += LootGenerationFactory.RollCantripDifficulty(cantrips);
+                    UpdateArcaneLoreAndSpellCraft(target, newRollDiff);
+
+                    if (!target.UiEffects.HasValue) // Elemental effects take precendence over magical as it is more important to know the element of a weapon than if it has spells.
+                        target.UiEffects = ACE.Entity.Enum.UiEffects.Magical;
+
+                    player.EnqueueBroadcast(new GameMessageUpdateObject(target));
 
                     player.TryConsumeFromInventoryWithNetworking(source); // Consume the scroll.
                     BroadcastSpellTransfer(player, spellToAdd.Name, target, chance, success);
@@ -323,7 +346,7 @@ namespace ACE.Server.WorldObjects
                 player.NextUseTime = DateTime.UtcNow.AddSeconds(animTime);
             }
             else // Extraction Scroll
-                       {
+            {
                 if (target.Retained == true)
                 {
                     player.Session.Network.EnqueueSend(new GameMessageSystemChat($"The {target.NameWithMaterial} is Retained!.", ChatMessageType.Craft));
