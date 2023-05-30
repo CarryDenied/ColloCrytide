@@ -1116,7 +1116,7 @@ namespace ACE.Server.Managers
 
                     foreach (string spellString in spells)
                     {
-                        if (uint.TryParse(spellString.Replace("-", ""), out var spellId))
+                        if (uint.TryParse(spellString, out var spellId))
                             SpellTransferScroll.InjectSpell(spellId, result);
                     }
 
