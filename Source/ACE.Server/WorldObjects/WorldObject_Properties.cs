@@ -3195,6 +3195,18 @@ namespace ACE.Server.WorldObjects
             set { if (!value.HasValue) RemoveProperty(PropertyInt.ExtraSpellsMaxOverride); else SetProperty(PropertyInt.ExtraSpellsMaxOverride, value.Value); }
         }
 
+        public int? BaseItemDifficultyOverride
+        {
+            get => GetProperty(PropertyInt.BaseItemDifficultyOverride);
+            set { if (!value.HasValue) RemoveProperty(PropertyInt.BaseItemDifficultyOverride); else SetProperty(PropertyInt.BaseItemDifficultyOverride, value.Value); }
+        }
+
+        public int? BaseSpellcraftOverride
+        {
+            get => GetProperty(PropertyInt.BaseSpellcraftOverride);
+            set { if (!value.HasValue) RemoveProperty(PropertyInt.BaseSpellcraftOverride); else SetProperty(PropertyInt.BaseSpellcraftOverride, value.Value); }
+        }
+
         public string ExtraSpellsList
         {
             get => GetProperty(PropertyString.ExtraSpellsList);
