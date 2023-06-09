@@ -188,8 +188,7 @@ VALUES (0x77D6405F, 19385, 0x7D64016C, 157.381, 112.18, 16.055, 0.92388, 0, 0, -
 /* @teleloc 0x7D64016C [157.380997 112.180000 16.055000] 0.923880 0.000000 0.000000 -0.382683 */
 
 INSERT INTO `landblock_instance` (`guid`, `weenie_Class_Id`, `obj_Cell_Id`, `origin_X`, `origin_Y`, `origin_Z`, `angles_W`, `angles_X`, `angles_Y`, `angles_Z`, `is_Link_Child`, `last_Modified`)
-VALUES (0x77D64060, 19363, 0x7D64016C, 157.723, 112.523, 15.937, 0.92388, 0, 0, -0.382683, False, '2021-01-23 17:07:33'); /* Hasina Gardens
- Yaraq (19363/portalhasinagardens) */
+VALUES (0x77D64060, 19363, 0x7D64016C, 157.723, 112.523, 15.937, 0.92388, 0, 0, -0.382683, False, '2021-01-23 17:07:33'); /* Hasina Gardens Yaraq (19363/portalhasinagardens) */
 /* @teleloc 0x7D64016C [157.723007 112.523003 15.937000] 0.923880 0.000000 0.000000 -0.382683 */
 
 INSERT INTO `landblock_instance` (`guid`, `weenie_Class_Id`, `obj_Cell_Id`, `origin_X`, `origin_Y`, `origin_Z`, `angles_W`, `angles_X`, `angles_Y`, `angles_Z`, `is_Link_Child`, `last_Modified`)

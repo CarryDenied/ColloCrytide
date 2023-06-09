@@ -294,8 +294,7 @@ INSERT INTO `landblock_instance_link` (`parent_GUID`, `child_GUID`, `last_Modifi
 VALUES (0x7A9B406C, 0x7A9B406B, '2005-02-09 10:00:00')/* Tirenia (30696/royalguardtirenia) - Level: 245 - Generates - Canescent Mattekar Robe(10870/robeharrowermattekarcanescent-xp) / Cap(118/capcloth) */;
 
 INSERT INTO `landblock_instance` (`guid`, `weenie_Class_Id`, `obj_Cell_Id`, `origin_X`, `origin_Y`, `origin_Z`, `angles_W`, `angles_X`, `angles_Y`, `angles_Z`, `is_Link_Child`, `last_Modified`)
-VALUES (0x7A9B406D, 19372, 0xA9B40031, 147.048, 19.8419, 93.937, 0.928179, 0, 0, 0.372134, False, '2021-01-21 17:45:06'); /* Trellyn Gardens
- Holtburg (19372/portaltrellyngardens) */
+VALUES (0x7A9B406D, 19372, 0xA9B40031, 147.048, 19.8419, 93.937, 0.928179, 0, 0, 0.372134, False, '2021-01-21 17:45:06'); /* Trellyn Gardens Holtburg (19372/portaltrellyngardens) */
 /* @teleloc 0xA9B40031 [147.048004 19.841900 93.936996] 0.928179 0.000000 0.000000 0.372134 */
 
 INSERT INTO `landblock_instance` (`guid`, `weenie_Class_Id`, `obj_Cell_Id`, `origin_X`, `origin_Y`, `origin_Z`, `angles_W`, `angles_X`, `angles_Y`, `angles_Z`, `is_Link_Child`, `last_Modified`)

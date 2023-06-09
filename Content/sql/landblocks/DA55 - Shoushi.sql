@@ -340,8 +340,7 @@ VALUES (0x7DA55083, 14930, 0xDA550028, 98.9871, 179.666, 22.0049, -0.461215, 0, 
 /* @teleloc 0xDA550028 [98.987099 179.666000 22.004900] -0.461215 0.000000 0.000000 0.887288 */
 
 INSERT INTO `landblock_instance` (`guid`, `weenie_Class_Id`, `obj_Cell_Id`, `origin_X`, `origin_Y`, `origin_Z`, `angles_W`, `angles_X`, `angles_Y`, `angles_Z`, `is_Link_Child`, `last_Modified`)
-VALUES (0x7DA55084, 21467, 0xDA550019, 84.1165, 7.16517, 19.937, -0.999972, 0, 0, -0.007501, False, '2021-01-23 16:28:43'); /* Jojii Gardens
- Shoushi (21467/portaljojiigardens) */
+VALUES (0x7DA55084, 21467, 0xDA550019, 84.1165, 7.16517, 19.937, -0.999972, 0, 0, -0.007501, False, '2021-01-23 16:28:43'); /* Jojii Gardens Shoushi (21467/portaljojiigardens) */
 /* @teleloc 0xDA550019 [84.116501 7.165170 19.937000] -0.999972 0.000000 0.000000 -0.007501 */
 
 INSERT INTO `landblock_instance` (`guid`, `weenie_Class_Id`, `obj_Cell_Id`, `origin_X`, `origin_Y`, `origin_Z`, `angles_W`, `angles_X`, `angles_Y`, `angles_Z`, `is_Link_Child`, `last_Modified`)
