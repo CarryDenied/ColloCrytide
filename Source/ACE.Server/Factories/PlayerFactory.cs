@@ -783,6 +783,14 @@ namespace ACE.Server.Factories
 
             // This option was seen in PCAPs on new characters, and possibly was added to Defaults post PDB we have
             player.SetCharacterOption(CharacterOption.ListenToPKDeathMessages, true);
+
+            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+            {
+                player.SetCharacterOption(CharacterOption.SalvageMultipleMaterialsAtOnce, true);
+                player.SetCharacterOption(CharacterOption.UseMainPackAsDefaultForPickingUpItems, true);
+                player.SetCharacterOption(CharacterOption.UseCraftingChanceOfSuccessDialog, true);
+                player.SetCharacterOption(CharacterOption.AllowRessAttempts, true);
+            }
         }
     }
 }
