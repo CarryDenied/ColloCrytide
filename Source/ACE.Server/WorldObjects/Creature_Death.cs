@@ -772,9 +772,11 @@ namespace ACE.Server.WorldObjects
                 foreach (var item in selected)
                 {
                     var wo = WorldObjectFactory.CreateNewWorldObject(item);
-
+                    
                     if (wo != null)
                     {
+                        wo.MutateQuestItem();
+
                         if (corpse != null)
                             corpse.TryAddToInventory(wo);
                         else

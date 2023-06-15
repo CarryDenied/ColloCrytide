@@ -3183,5 +3183,10 @@ namespace ACE.Server.WorldObjects
             get => GetProperty(PropertyFloat.ComponentBurnRateMod);
             set { if (!value.HasValue) RemoveProperty(PropertyFloat.ComponentBurnRateMod); else SetProperty(PropertyFloat.ComponentBurnRateMod, value.Value); }
         }
+        public int? SlayerAdded
+        {
+            get => GetProperty(PropertyInt.SlayerAdded);
+            set { if (!value.HasValue) RemoveProperty(PropertyInt.SlayerAdded); else SetProperty(PropertyInt.SlayerAdded, value.Value); }
+        }
     }
 }
