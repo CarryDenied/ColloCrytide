@@ -3188,5 +3188,29 @@ namespace ACE.Server.WorldObjects
             get => GetProperty(PropertyInt.SlayerAdded);
             set { if (!value.HasValue) RemoveProperty(PropertyInt.SlayerAdded); else SetProperty(PropertyInt.SlayerAdded, value.Value); }
         }
+
+        public int? ExtraSpellsMaxOverride
+        {
+            get => GetProperty(PropertyInt.ExtraSpellsMaxOverride);
+            set { if (!value.HasValue) RemoveProperty(PropertyInt.ExtraSpellsMaxOverride); else SetProperty(PropertyInt.ExtraSpellsMaxOverride, value.Value); }
+        }
+
+        public int? BaseItemDifficultyOverride
+        {
+            get => GetProperty(PropertyInt.BaseItemDifficultyOverride);
+            set { if (!value.HasValue) RemoveProperty(PropertyInt.BaseItemDifficultyOverride); else SetProperty(PropertyInt.BaseItemDifficultyOverride, value.Value); }
+        }
+
+        public int? BaseSpellcraftOverride
+        {
+            get => GetProperty(PropertyInt.BaseSpellcraftOverride);
+            set { if (!value.HasValue) RemoveProperty(PropertyInt.BaseSpellcraftOverride); else SetProperty(PropertyInt.BaseSpellcraftOverride, value.Value); }
+        }
+
+        public string ExtraSpellsList
+        {
+            get => GetProperty(PropertyString.ExtraSpellsList);
+            set { if (value == null) RemoveProperty(PropertyString.ExtraSpellsList); else SetProperty(PropertyString.ExtraSpellsList, value); }
+        }
     }
 }

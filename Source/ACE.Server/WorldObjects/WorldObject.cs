@@ -1142,7 +1142,7 @@ namespace ACE.Server.WorldObjects
         {
             if (ExtraSpellsMaxOverride != null)
                 return Math.Max(ExtraSpellsMaxOverride ?? 0, 0);
-            return (int)Math.Floor((ItemWorkmanship ?? 0) / 2f);
+            return Math.Max((int)Math.Ceiling(((ItemWorkmanship ?? 0) - 1) / 2f), 0);
         }
 
         public bool CanHaveExtraSpells()
@@ -1151,104 +1151,6 @@ namespace ACE.Server.WorldObjects
                 return true;
             else
                 return ItemWorkmanship > 0 && (ItemType & (ItemType.WeaponOrCaster | ItemType.Vestements | ItemType.Jewelry)) != 0;
-        }
-
-        public int GetMaxTinkerCount()
-        {
-            if (ItemWorkmanship > 0 && (ItemType & (ItemType.WeaponOrCaster | ItemType.Armor | ItemType.Jewelry)) != 0)
-                return (int)Math.Floor((ItemWorkmanship ?? 0) / 3.1f) + 1;
-            else
-                return 0;
-        }
-
-        public int GetMinSalvageQualityForTinkering()
-        {
-            return (int)Math.Floor((ItemWorkmanship ?? 0) / 3.5f) * 4;
-        }
-
-        public double GetHighestTierAroundObject(float maxDistance)
-        {
-            double? maxTier = null;
-            var instances = DatabaseManager.World.GetCachedInstancesByLandblock(CurrentLandblock.Id.Landblock);
-            foreach (var instance in instances)
-            {
-                Position instancePos = new Position(instance.ObjCellId, instance.OriginX, instance.OriginY, instance.OriginZ, instance.AnglesX, instance.AnglesY, instance.AnglesZ, instance.AnglesW);
-                if (Location.DistanceTo(instancePos) < maxDistance)
-                {
-                    var weenie = DatabaseManager.World.GetCachedWeenie(instance.WeenieClassId);
-
-                    if (weenie.WeenieType == WeenieType.Creature)
-                    {
-                        var level = weenie.GetProperty(PropertyInt.Level) ?? 1;
-                        var tier = Creature.CalculateExtendedTier(level);
-                        if (tier > (maxTier ?? 0))
-                            maxTier = tier;
-                    }
-                    else
-                    {
-                        var deathTreasureId = weenie.GetProperty(PropertyDataId.DeathTreasureType) ?? 0;
-                        if (deathTreasureId != 0)
-                        {
-                            var deathTreasure = LootGenerationFactory.GetTweakedDeathTreasureProfile(deathTreasureId, this);
-                            if (deathTreasure.Tier > (maxTier ?? 0))
-                                maxTier = deathTreasure.Tier;
-                        }
-                    }
-                }
-            }
-
-            var encounters = DatabaseManager.World.GetCachedEncountersByLandblock(CurrentLandblock.Id.Landblock, out _);
-            foreach (var encounter in encounters)
-            {
-                var xPos = Math.Clamp((encounter.CellX * 24.0f) + 12.0f, 0.5f, 191.5f);
-                var yPos = Math.Clamp((encounter.CellY * 24.0f) + 12.0f, 0.5f, 191.5f);
-
-                var pos = new Physics.Common.Position();
-                pos.ObjCellID = (uint)(CurrentLandblock.Id.Landblock << 16) | 1;
-                pos.Frame = new Physics.Animation.AFrame(new Vector3(xPos, yPos, 0), Quaternion.Identity);
-                pos.adjust_to_outside();
-                pos.Frame.Origin.Z = CurrentLandblock.PhysicsLandblock.GetZ(pos.Frame.Origin);
-
-                Position encounterPos = new Position(pos.ObjCellID, pos.Frame.Origin, pos.Frame.Orientation);
-                if (Location.DistanceTo(encounterPos) < maxDistance)
-                {
-                    var weenie = DatabaseManager.World.GetCachedWeenie(encounter.WeenieClassId);
-
-                    foreach (var generatorEntry in weenie.PropertiesGenerator)
-                    {
-                        var generatedWeenie = DatabaseManager.World.GetCachedWeenie(generatorEntry.WeenieClassId);
-
-                        if (generatedWeenie.WeenieType == WeenieType.Creature)
-                        {
-                            var level = generatedWeenie.GetProperty(PropertyInt.Level) ?? 1;
-                            var tier = Creature.CalculateExtendedTier(level);
-                            if (tier > (maxTier ?? 0))
-                            {
-                                maxTier = tier;
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            var deathTreasureId = generatedWeenie.GetProperty(PropertyDataId.DeathTreasureType) ?? 0;
-                            if (deathTreasureId != 0)
-                            {
-                                var deathTreasure = LootGenerationFactory.GetTweakedDeathTreasureProfile(deathTreasureId, this);
-                                if (deathTreasure.Tier > (maxTier ?? 0))
-                                {
-                                    maxTier = deathTreasure.Tier;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (maxTier.HasValue)
-                        break;
-                }
-            }
-
-            return maxTier ?? 0;
         }
     }
 }

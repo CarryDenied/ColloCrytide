@@ -75,7 +75,7 @@ namespace ACE.Server.WorldObjects
                 return;
             }
 
-            if (!RecipeManager.VerifyUse(player, source, target, true) || target.Workmanship == null)
+            if (!RecipeManager.VerifyUse(player, source, target, true))
             {
                 player.SendUseDoneEvent(WeenieError.YouDoNotPassCraftingRequirements);
                 return;
@@ -83,6 +83,12 @@ namespace ACE.Server.WorldObjects
 
             if (source.SpellDID.HasValue) // Transfer Scroll
             {
+                if(target.Workmanship == null && target.ExtraSpellsMaxOverride == null)
+                {
+                    player.SendUseDoneEvent(WeenieError.YouDoNotPassCraftingRequirements);
+                    return;
+                }
+
                 var spellToAddId = (uint)source.SpellDID;
                 var spellToAddlevel1Id = SpellLevelProgression.GetLevel1SpellId((SpellId)spellToAddId);
                 Spell spellToAdd = new Spell(spellToAddId);
@@ -155,14 +161,21 @@ namespace ACE.Server.WorldObjects
                 else if (spellToAdd.School == MagicSchool.CreatureEnchantment)
                     enchantments.Add((SpellId)spellToAddId);
 
+                var extraSpells = target.ExtraSpellsList != null ? target.ExtraSpellsList.Split(",").ToList() : new List<string>();
+
                 Spell spellToReplace = null;
                 foreach (var spellOnItemId in spellsOnItem)
                 {
                     Spell spellOnItem = new Spell(spellOnItemId);
-                    if (spellOnItem.IsCantrip)
-                        cantrips.Add((SpellId)spellOnItemId);
-                    else if(spellOnItem.School == MagicSchool.CreatureEnchantment)
-                        enchantments.Add((SpellId)spellOnItemId);
+
+                    if (target.BaseItemDifficultyOverride == null || extraSpells.Contains(spellOnItemId.ToString()))
+                    {
+                        // For items that have a base difficulty override we will only calculate new arcane lore requirements based on the extra spells so filter them here.
+                        if (spellOnItem.IsCantrip)
+                            cantrips.Add((SpellId)spellOnItemId);
+                        else if (spellOnItem.School == MagicSchool.CreatureEnchantment)
+                            enchantments.Add((SpellId)spellOnItemId);
+                    }
 
                     if (spellOnItemId == spellToAddId)
                     {
@@ -189,26 +202,37 @@ namespace ACE.Server.WorldObjects
                     }
                 }
 
-                int spellCount = 0;
-                var spells = target.Biota.GetKnownSpellsIds(target.BiotaDatabaseLock);
-                if (target.ProcSpell != null && target.ProcSpell != 0)
-                    spells.Add((int)target.ProcSpell);
-                spellCount = spells.Count;
+                if(spellToReplace != null)
+                {
+                    enchantments.Remove((SpellId)spellToReplace.Id);
+                    cantrips.Remove((SpellId)spellToReplace.Id);
+                }
 
-                var chance = Math.Clamp((10 - spellCount) * 0.1, 0.0, 1.0);
-                if (isProc || isGem || spellToReplace != null)
-                    chance = 1.0; // These are spell replacements and not additions, so full chance every time.
-                var percent = chance * 100;
-                var showDialog = player.GetCharacterOption(CharacterOption.UseCraftingChanceOfSuccessDialog);
-                if (showDialog && !confirmed)
+                if (!isGem && target.ProcSpell == null && spellToReplace == null)
+                {
+                    if ((target.ExtraSpellsCount ?? 0) >= target.GetMaxExtraSpellsCount())
+                    {
+                        player.Session.Network.EnqueueSend(new GameMessageSystemChat($"The {target.NameWithMaterial} cannot contain any more spells.", ChatMessageType.Craft));
+                        player.SendUseDoneEvent();
+                        return;
+                    }
+                }
+
+                if (!confirmed)
                 {
                     var extraMessage = "";
-                    if (isProc)
-                        extraMessage = "\nThis will replace the current Cast on Strike spell!\n\n";
-                    else if(isGem)
-                        extraMessage = "\nThis will replace the current gem spell!\n\n";
-                    else if(spellToReplace != null)
-                        extraMessage = $"\nThis will replace {spellToReplace.Name}!\n\n";
+                    if (isProc && target.ProcSpell != null)
+                    {
+                        var currentProc = new Spell(target.ProcSpell ?? 0);
+                        extraMessage = $"\nThis will replace {currentProc.Name}!\n";
+                    }
+                    else if (isGem && target.SpellDID != null)
+                    {
+                        var currentGemSpell = new Spell(target.SpellDID ?? 0);
+                        extraMessage = $"\nThis will replace {currentGemSpell.Name}!\n";
+                    }
+                    else if (spellToReplace != null)
+                        extraMessage = $"\nThis will replace {spellToReplace.Name}!\n";
 
                     if (!player.ConfirmationManager.EnqueueSend(new Confirmation_CraftInteration(player.Guid, source.Guid, target.Guid), $"Transfering {spellToAdd.Name} to {target.NameWithMaterial}.\n{(extraMessage.Length > 0 ? extraMessage : "")}You determine that you have a {percent.Round()} percent chance to succeed.\n\n"))
                         player.SendUseDoneEvent(WeenieError.ConfirmationInProgress);
@@ -245,7 +269,47 @@ namespace ACE.Server.WorldObjects
                     var success = new Random().NextDouble() < chance;
                     if (success)
                     {
-                        if (isProc)
+                        HandleExtraSpellList(target, spellToAddId, target.ProcSpell ?? 0);
+
+                        target.ProcSpellRate = 0.15f;
+                        target.ProcSpell = spellToAddId;
+                        target.ProcSpellSelfTargeted = spellToAdd.IsSelfTargeted;
+                    }
+                    else if (isGem)
+                    {
+                        HandleExtraSpellList(target, spellToAddId, target.SpellDID ?? 0);
+
+                        target.SpellDID = spellToAddId;
+                    }
+                    else
+                    {
+                        if (spellToReplace != null)
+                        {
+                            HandleExtraSpellList(target, spellToAddId, spellToReplace.Id);
+                            target.Biota.TryRemoveKnownSpell((int)spellToReplace.Id, target.BiotaDatabaseLock);
+                        }
+                        else
+                            HandleExtraSpellList(target, spellToAddId);
+                        target.Biota.GetOrAddKnownSpell((int)spellToAddId, target.BiotaDatabaseLock, out _);
+                    }
+
+                    var newMaxBaseMana = LootGenerationFactory.GetMaxBaseMana(target);
+                    var newManaRate = LootGenerationFactory.CalculateManaRate(newMaxBaseMana);
+                    var newMaxMana = (int)spellToAdd.BaseMana * 15;
+
+                    if (target.TinkerLog != null)
+                    {
+                        var tinkers = target.TinkerLog.Split(",");
+                        var appliedMoonstoneCount = tinkers.Count(s => s == "31");
+                        newMaxMana += 500 * appliedMoonstoneCount;
+                    }
+
+                    if (isGem)
+                    {
+                        target.ItemUseable = Usable.Contained;
+                        target.ItemManaCost = (int)spellToAdd.BaseMana;
+                        var baseWeenie = DatabaseManager.World.GetCachedWeenie(target.WeenieClassId);
+                        if (baseWeenie != null)
                         {
                             target.ProcSpellRate = 0.15f;
                             target.ProcSpell = spellToAddId;
@@ -301,8 +365,26 @@ namespace ACE.Server.WorldObjects
 
                         player.EnqueueBroadcast(new GameMessageUpdateObject(target));
                     }
-                    else
-                        player.TryConsumeFromInventoryWithNetworking(target); // Destroy the item on failure.
+                    else if (newMaxMana > (target.ItemMaxMana ?? 0))
+                    {
+                        target.ManaRate = newManaRate;
+                        target.LongDesc = LootGenerationFactory.GetLongDesc(target);
+                    }
+
+                    if (spellToReplace == null || (isProc && target.ProcSpell == null))
+                        target.ExtraSpellsCount = (target.ExtraSpellsCount ?? 0) + 1;
+
+                    target.ItemMaxMana = newMaxMana;
+                    target.ItemCurMana = Math.Clamp(target.ItemCurMana ?? 0, 0, target.ItemMaxMana ?? 0);
+
+                    var newRollDiff = LootGenerationFactory.RollEnchantmentDifficulty(enchantments);
+                    newRollDiff += LootGenerationFactory.RollCantripDifficulty(cantrips);
+                    UpdateArcaneLoreAndSpellCraft(target, newRollDiff);
+
+                    if (!target.UiEffects.HasValue) // Elemental effects take precendence over magical as it is more important to know the element of a weapon than if it has spells.
+                        target.UiEffects = ACE.Entity.Enum.UiEffects.Magical;
+
+                    player.EnqueueBroadcast(new GameMessageUpdateObject(target));
 
                     player.TryConsumeFromInventoryWithNetworking(source); // Consume the scroll.
                     BroadcastSpellTransfer(player, spellToAdd.Name, target, chance, success);
@@ -323,7 +405,13 @@ namespace ACE.Server.WorldObjects
                 player.NextUseTime = DateTime.UtcNow.AddSeconds(animTime);
             }
             else // Extraction Scroll
-                       {
+            {
+                if (target.Workmanship == null)
+                {
+                    player.SendUseDoneEvent(WeenieError.YouDoNotPassCraftingRequirements);
+                    return;
+                }
+
                 if (target.Retained == true)
                 {
                     player.Session.Network.EnqueueSend(new GameMessageSystemChat($"The {target.NameWithMaterial} is Retained!.", ChatMessageType.Craft));
@@ -451,34 +539,251 @@ namespace ACE.Server.WorldObjects
 
         private static void UpdateArcaneLoreAndSpellCraft(WorldObject wo, float newRollDiff)
         {
-            var newSpellcraft = LootGenerationFactory.RollSpellcraft(wo);
-
-            var itemSkillLevelFactor = 0.0f;
-
-            if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+            if (wo.BaseItemDifficultyOverride == null)
             {
-                if (wo.ItemSkillLevelLimit > 0)
-                    itemSkillLevelFactor = wo.ItemSkillLevelLimit.Value / 10.0f;
+                var newSpellcraft = LootGenerationFactory.RollSpellcraft(wo);
+
+                var itemSkillLevelFactor = 0.0f;
+
+                if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+                {
+                    if (wo.ItemSkillLevelLimit > 0)
+                        itemSkillLevelFactor = wo.ItemSkillLevelLimit.Value / 10.0f;
+                }
+                else
+                {
+                    if (wo.ItemSkillLevelLimit > 0)
+                        itemSkillLevelFactor = wo.ItemSkillLevelLimit.Value / 2.0f;
+                }
+
+                var fArcane = newSpellcraft - itemSkillLevelFactor;
+
+                if (wo.ItemAllegianceRankLimit > 0)
+                    fArcane -= (float)wo.ItemAllegianceRankLimit * 10.0f;
+
+                if (wo.HeritageGroup != 0)
+                    fArcane -= fArcane * 0.2f;
+
+                if (fArcane < 0)
+                    fArcane = 0;
+
+                wo.ItemDifficulty = (int)Math.Floor(fArcane + newRollDiff);
+                wo.ItemSpellcraft = newSpellcraft;
+            }
+            else // BaseItemDifficultyOverride will be used for base spells, calculate extra requirements of the extra spells.
+            {
+                var newSpellcraft = LootGenerationFactory.RollSpellcraftForExtraSpells(wo);
+
+                var itemSkillLevelFactor = 0.0f;
+
+                if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM)
+                {
+                    if (wo.ItemSkillLevelLimit > 0)
+                        itemSkillLevelFactor = wo.ItemSkillLevelLimit.Value / 10.0f;
+                }
+                else
+                {
+                    if (wo.ItemSkillLevelLimit > 0)
+                        itemSkillLevelFactor = wo.ItemSkillLevelLimit.Value / 2.0f;
+                }
+
+                var fArcane = newSpellcraft - itemSkillLevelFactor;
+
+                if (wo.ItemAllegianceRankLimit > 0)
+                    fArcane -= (float)wo.ItemAllegianceRankLimit * 10.0f;
+
+                if (wo.HeritageGroup != 0)
+                    fArcane -= fArcane * 0.2f;
+
+                if (fArcane < 0)
+                    fArcane = 0;
+
+                wo.ItemDifficulty = Math.Max(wo.BaseItemDifficultyOverride ?? 0, (int)Math.Floor(fArcane + newRollDiff));
+                wo.ItemSpellcraft = Math.Max(wo.BaseSpellcraftOverride ?? 0, newSpellcraft);
+            }
+        }
+
+        public static bool InjectSpell(uint spellToAddId, WorldObject target)
+        {
+            if (target.Workmanship == null && target.ExtraSpellsMaxOverride == null)
+                return false;
+
+            var spellToAddlevel1Id = SpellLevelProgression.GetLevel1SpellId((SpellId)spellToAddId);
+            Spell spellToAdd = new Spell(spellToAddId);
+
+            var isProc = false;
+            if (spellToAddlevel1Id != SpellId.Undef && (MeleeSpells.meleeProcs.FirstOrDefault(x => x.result == spellToAddlevel1Id) != default((SpellId, float)) || MissileSpells.missileProcs.FirstOrDefault(x => x.result == spellToAddlevel1Id) != default((SpellId, float))))
+            {
+                isProc = true;
+
+                if (target.ItemType != ItemType.MeleeWeapon && target.ItemType != ItemType.MissileWeapon)
+                    return false;
+            }
+
+            var isGem = false;
+            if (target.ItemType == ItemType.Gem)
+            {
+                if (!PropertyManager.GetBool("useable_gems").Item)
+                    return false;
+
+                isGem = true;
+                if (spellToAdd.IsCantrip)
+                    return false;
+                else if (spellToAdd.School == MagicSchool.ItemEnchantment)
+                    return false;
+            }
+            else if (target.ItemType == ItemType.MeleeWeapon || target.ItemType == ItemType.MissileWeapon || target.ItemType == ItemType.Caster)
+            {
+                if (spellToAdd.IsImpenBaneType)
+                    return false;
             }
             else
             {
-                if (wo.ItemSkillLevelLimit > 0)
-                    itemSkillLevelFactor = wo.ItemSkillLevelLimit.Value / 2.0f;
+                if (spellToAdd.IsWeaponTargetType)
+                    return false;
             }
 
-            var fArcane = newSpellcraft - itemSkillLevelFactor;
+            if (spellToAdd.School == MagicSchool.ItemEnchantment && target.ResistMagic >= 9999)
+                return false;
 
-            if (wo.ItemAllegianceRankLimit > 0)
-                fArcane -= (float)wo.ItemAllegianceRankLimit * 10.0f;
+            var spellsOnItem = target.Biota.GetKnownSpellsIds(target.BiotaDatabaseLock);
 
-            if (wo.HeritageGroup != 0)
-                fArcane -= fArcane * 0.2f;
+            if (target.ProcSpell != null && target.ProcSpell != 0)
+                spellsOnItem.Add((int)target.ProcSpell);
 
-            if (fArcane < 0)
-                fArcane = 0;
+            var enchantments = new List<SpellId>();
+            var cantrips = new List<SpellId>();
+            if (spellToAdd.IsCantrip)
+                cantrips.Add((SpellId)spellToAddId);
+            else if (spellToAdd.School == MagicSchool.CreatureEnchantment)
+                enchantments.Add((SpellId)spellToAddId);
 
-            wo.ItemDifficulty = (int)Math.Floor(fArcane + newRollDiff);
-            wo.ItemSpellcraft = newSpellcraft;
+            Spell spellToReplace = null;
+            foreach (var spellOnItemId in spellsOnItem)
+            {
+                Spell spellOnItem = new Spell(spellOnItemId);
+                if (spellOnItem.IsCantrip)
+                    cantrips.Add((SpellId)spellOnItemId);
+                else if (spellOnItem.School == MagicSchool.CreatureEnchantment)
+                    enchantments.Add((SpellId)spellOnItemId);
+
+                if (spellOnItemId == spellToAddId)
+                    return false;
+                else if (spellOnItem.Category == spellToAdd.Category)
+                {
+                    if (spellOnItem.Power > spellToAdd.Power)
+                        return false;
+                    else if (spellOnItem.Power == spellToAdd.Power)
+                        return false;
+                    else
+                        spellToReplace = spellOnItem;
+                }
+            }
+
+            if (!isGem && target.ProcSpell == null && spellToReplace == null)
+            {
+                if ((target.ExtraSpellsCount ?? 0) >= target.GetMaxExtraSpellsCount())
+                    return false;
+            }
+
+            if (isProc)
+            {
+                HandleExtraSpellList(target, spellToAddId, target.ProcSpell ?? 0);
+
+                target.ProcSpellRate = 0.15f;
+                target.ProcSpell = spellToAddId;
+                target.ProcSpellSelfTargeted = spellToAdd.IsSelfTargeted;
+            }
+            else if (isGem)
+            {
+                HandleExtraSpellList(target, spellToAddId, target.SpellDID ?? 0);
+
+                target.SpellDID = spellToAddId;
+            }
+            else
+            {
+                if (spellToReplace != null)
+                {
+                    HandleExtraSpellList(target, spellToAddId, spellToReplace.Id);
+                    target.Biota.TryRemoveKnownSpell((int)spellToReplace.Id, target.BiotaDatabaseLock);
+                }
+                else
+                    HandleExtraSpellList(target, spellToAddId);
+                target.Biota.GetOrAddKnownSpell((int)spellToAddId, target.BiotaDatabaseLock, out _);
+            }
+
+            var newMaxBaseMana = LootGenerationFactory.GetMaxBaseMana(target);
+            var newManaRate = LootGenerationFactory.CalculateManaRate(newMaxBaseMana);
+            var newMaxMana = (int)spellToAdd.BaseMana * 15;
+
+            if (target.TinkerLog != null)
+            {
+                var tinkers = target.TinkerLog.Split(",");
+                var appliedMoonstoneCount = tinkers.Count(s => s == "31");
+                newMaxMana += 500 * appliedMoonstoneCount;
+            }
+
+            if (isGem)
+            {
+                target.ItemUseable = Usable.Contained;
+                target.ItemManaCost = (int)spellToAdd.BaseMana;
+                var baseWeenie = DatabaseManager.World.GetCachedWeenie(target.WeenieClassId);
+                if (baseWeenie != null)
+                {
+                    target.Name = baseWeenie.GetName(); // Reset to base name before rebuilding suffix.
+                    target.LongDesc = LootGenerationFactory.GetLongDesc(target);
+                    target.Name = target.LongDesc;
+                }
+            }
+            else if (newMaxMana > (target.ItemMaxMana ?? 0))
+            {
+                target.ManaRate = newManaRate;
+                target.LongDesc = LootGenerationFactory.GetLongDesc(target);
+            }
+
+            if (spellToReplace == null || (isProc && target.ProcSpell == null))
+                target.ExtraSpellsCount = (target.ExtraSpellsCount ?? 0) + 1;
+
+            target.ItemMaxMana = newMaxMana;
+            target.ItemCurMana = Math.Clamp(target.ItemCurMana ?? 0, 0, target.ItemMaxMana ?? 0);
+
+            var newRollDiff = LootGenerationFactory.RollEnchantmentDifficulty(enchantments);
+            newRollDiff += LootGenerationFactory.RollCantripDifficulty(cantrips);
+            UpdateArcaneLoreAndSpellCraft(target, newRollDiff);
+
+            if (!target.UiEffects.HasValue) // Elemental effects take precendence over magical as it is more important to know the element of a weapon than if it has spells.
+                target.UiEffects = ACE.Entity.Enum.UiEffects.Magical;
+
+            return true;
+        }
+
+        private static void HandleExtraSpellList(WorldObject target, uint newSpellId, uint replacementForSpellId = 0)
+        {
+            var spellList = new List<uint>();
+
+            if (target.ExtraSpellsList != null)
+            {
+                var entries = target.ExtraSpellsList.Split(',');
+                foreach (var entry in entries)
+                {
+                    if (uint.TryParse(entry, out var value))
+                        spellList.Add(value);
+                    else
+                    {
+                        log.Error($"HandleExtraSpellList() - Could not parse spellId \"{entry}\" in {target.Name}({target.Guid}) ExtraSpellList");
+                        continue;
+                    }
+                }
+            }
+
+            if (replacementForSpellId != 0)
+                spellList.Remove(replacementForSpellId);
+            spellList.Add(newSpellId);
+
+            if (spellList.Count > 0)
+                target.ExtraSpellsList = string.Join(",", spellList);
+            else
+                target.ExtraSpellsList = null;
         }
     }
 }
