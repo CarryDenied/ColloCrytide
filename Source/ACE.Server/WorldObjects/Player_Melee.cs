@@ -389,11 +389,8 @@ namespace ACE.Server.WorldObjects
                         return;
                     }
 
-                    if (weapon == null)
-                    {
-                        // Handle the case where 'weapon' is null
-                        return;
-                    }
+                    // If weapon==null, then this is unarmed combat, which is accounted in DamageTarget
+                    // check for this explicitly in any custom behaviors below.
 
                     //if (Common.ConfigManager.Config.Server.WorldRuleset == Common.Ruleset.CustomDM && !IsDirectVisible(target))
                     //{
@@ -424,7 +421,7 @@ namespace ACE.Server.WorldObjects
                         }
                     }
                     
-                    if (weapon.IsPiercing)
+                    if (weapon != null && weapon.IsPiercing)
                     {
                         var pierce = GetPierceTarget(creature, weapon);
 
